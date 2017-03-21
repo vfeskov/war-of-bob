@@ -110,6 +110,7 @@ finish {
   text-align: center;
   top: 4vmin;
   width: 88vmin;
+  z-index: 2;
 }
 
 finish highscore {
@@ -119,4 +120,9 @@ finish highscore {
 
 finish time {
   font-weight: bold;
+}
+
+finish h1 {
+  position: absolute;
+  top: 0;
 }

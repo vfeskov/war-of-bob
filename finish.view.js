@@ -15,6 +15,9 @@ class FinishView {
   createElements() {
     this.container = document.createElement('finish');
 
+    this.title = document.createElement('h1');
+    this.title.appendChild(document.createTextNode('WAR OF BOB'));
+
     this.highscore = document.createElement('highscore');
     this.highscore.appendChild(document.createTextNode('New Highscore!'));
 
@@ -26,6 +29,7 @@ class FinishView {
     this.timeContainer.appendChild(document.createElement('br'));
     this.timeContainer.appendChild(document.createTextNode('Hit Space to restart.'));
 
+    this.container.appendChild(this.title);
     this.container.appendChild(this.highscore);
     this.container.appendChild(this.timeContainer);
     document.body.appendChild(this.container);
