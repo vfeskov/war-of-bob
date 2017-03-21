@@ -1,0 +1,122 @@
+* {
+  box-sizing: border-box;
+}
+
+body,
+html {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: Arial;
+  margin: 0;
+}
+
+body > * {
+  margin: 0 auto;
+}
+
+bob {
+  background-image: url('bob.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  border: 1px solid #ddd;
+  display: block;
+  position: absolute;
+  z-index: 1;
+}
+
+#battlefield {
+  border: 1px solid black;
+  height: 88vmin;
+  position: relative;
+  width: 88vmin;
+}
+
+bullet {
+  background-image: url('bullet.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  border: 1px solid #ddd;
+  display: block;
+  position: absolute;
+  z-index: 0;
+}
+
+bullet.from-top {
+  transform: rotate(180deg);
+}
+
+bullet.from-left {
+  transform: rotate(90deg);
+}
+
+bullet.from-right {
+  transform: rotate(270deg);
+}
+
+#healthbar {
+  background: red;
+  height: 2vmin;
+  position: relative;
+  width: 88vmin;
+}
+
+health {
+  background: green;
+  height: 2vmin;
+  left: 0;
+  position: absolute;
+  top: 0;
+  transition: width 1s ease;
+}
+
+#timer {
+  display: flex;
+  font-size: 3.5vmin;
+  height: 4vmin;
+  justify-content: space-between;
+  line-height: 4vmin;
+  width: 88vmin;
+}
+
+footer {
+  height: 6vmin;
+  text-align: center;
+  width: 88vmin;
+}
+
+footer .icons {
+  font-size: 1.5vmin;
+  line-height: 3vmin;
+}
+
+footer .game {
+  font-size: 2vmin;
+  line-height: 3vmin;
+}
+
+finish {
+  align-items: center;
+  display: none;
+  flex-direction: column;
+  font-size: 5vmin;
+  height: 88vmin;
+  justify-content: center;
+  left: calc(50% - 44vmin);
+  line-height: 2em;
+  position: absolute;
+  text-align: center;
+  top: 4vmin;
+  width: 88vmin;
+}
+
+finish highscore {
+  display: none;
+  color: red;
+}
+
+finish time {
+  font-weight: bold;
+}
