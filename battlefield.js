@@ -5,12 +5,6 @@ class Battlefield {
       .publishReplay(1);
     this.sub = this.bobXY$.connect();
 
-    Rx.Observable.fromEvent(document.getElementById('html'), 'keyup')
-      .filter(({key, keyIdentifier}) =>
-        keyIdentifier === 'U+0020' || key === ' '
-      )
-      .subscribe(() => location.reload());
-
     this.bullet$ = new Rx.Observable(sub => {
       let timeout = null;
       (function schedule() {
@@ -43,8 +37,33 @@ class Battlefield {
       })
       .takeUntil(bob.dead$)
       .subscribe(bullet => {
-        this.bob.hit();
+        bob.hit();
         bullet.die();
       });
+
+    const bulletEvent$ = this.bullet$.mergeMap(bullet =>
+      this.getUnitEvent$(bullet, 'bullet')
+    );
+    const bobEvent$ = this.getUnitEvent$(bob, 'bob');
+
+    this.state$ = Rx.Observable.merge(bulletEvent$, bobEvent$)
+      .scan((state, {id, type, source, size, x, y, dead}) => {
+        const newState = Object.assign({}, state);
+        if (dead) {
+          delete newState[id];
+        } else {
+          newState[id] = {id, type, source, size, x, y};
+        }
+        return newState;
+      }, {});
+  }
+
+  getUnitEvent$(unit, type) {
+    return Rx.Observable.merge(
+      unit.dead$.mapTo({dead: true}),
+      unit.x$.combineLatest(unit.y$).map(([x, y]) => (
+        {type, source: unit.source, size: unit.size, x, y}
+      ))
+    ).map(ev => Object.assign(ev, {id: unit.id}))
   }
 }

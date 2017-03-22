@@ -1,5 +1,6 @@
 class Unit {
   constructor(width) {
+    this.id = Symbol('unit id');
     this.size = width;
     this.dead$ = this.getDead$ ? this.getDead$() : new Rx.Subject();
 
