@@ -6,18 +6,17 @@ class TimerView {
     this.container.appendChild(this.timeContainer);
     this.container.appendChild(this.highscoreContainer);
 
-    time$.subscribe(time => this.time = time, null, () => this.finished = true);
+    time$.subscribe(time => this.time = time);
 
     highscore$.subscribe(highscore => this.updateTime(this.highscoreContainer, highscore));
 
-    this.raf();
+    this.render();
   }
 
-  raf() {
+  render() {
     requestAnimationFrame(() => {
       this.updateTime(this.timeContainer, this.time);
-
-      this.finished || this.raf();
+      this.render();
     });
   }
 

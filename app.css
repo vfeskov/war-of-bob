@@ -25,6 +25,41 @@ body > * {
   width: 88vmin;
 }
 
+bob {
+  background-image: url('images/bob.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: block;
+  position: absolute;
+  z-index: 1;
+}
+
+syringe,
+bullet {
+  background-image: url('images/bullet-from-bottom.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: block;
+  position: absolute;
+  z-index: 0;
+}
+
+syringe {
+  background-image: url('images/syringe-from-bottom.png');
+}
+
+.from-top {
+  transform: rotate(180deg);
+}
+
+.from-left {
+  transform: rotate(90deg);
+}
+
+.from-right {
+  transform: rotate(270deg);
+}
+
 #healthbar {
   background: red;
   height: 2vmin;

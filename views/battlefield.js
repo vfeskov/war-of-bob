@@ -11,6 +11,7 @@ class BattlefieldView {
 
     this.ctx = this.canvas.getContext('2d');
 
+    this.prevState = {};
     this.state = {};
     state$.subscribe(state => this.state = state, null, () => this.finished = true);
 
@@ -50,13 +51,11 @@ class BattlefieldView {
 
   raf() {
     requestAnimationFrame(() => {
-      if (this.prevState) {
-        Object.keys(this.prevState)
-          .map(key => this.prevState[key])
-          .forEach(({size, x, y}) => {
-            this.ctx.clearRect(x * 10, y * 10, size * 10, size * 10);
-          });
-      }
+      Object.keys(this.prevState)
+        .map(key => this.prevState[key])
+        .forEach(({size, x, y}) => {
+          this.ctx.clearRect(x * 10, y * 10, size * 10, size * 10);
+        });
 
       Object.keys(this.state)
         .map(key => this.state[key])

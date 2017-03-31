@@ -45,6 +45,7 @@
   );
 
   const battlefieldView = new BattlefieldView(state$);
+  //const battlefieldView = new BattlefieldDOMView(state$);
   const healthbarView = new HealthbarView(bobHp$);
   const timerView = new TimerView(time$, highscore$);
   const finishView = new FinishView(time$, highscore$);
