@@ -21,7 +21,7 @@ class TimerView {
   }
 
   formatTime(time) {
-    return time.toString().replace(/(\d\d)$/, '.$1s');
+    return time.toString().replace(/(\d)$/, '.$1s');
   }
 
   updateTime(container, time) {

@@ -1,5 +1,11 @@
-+function({Observable, ReplaySubject, Subject}, {assign}) {
-  const initialBob = {id: uniqid(), x: 47, y: 47, size: 6};
+const {Observable, ReplaySubject, Subject} = require('rxjs');
+const {PROJECTILE_FROM_TOP, PROJECTILE_FROM_RIGHT, PROJECTILE_FROM_BOTTOM, PROJECTILE_FROM_LEFT} = require('./common/constants');
+const {assign} = Object;
+
+module.exports = () => {
+  let lastId = 0;
+
+  const initialBob = {id: lastId++, x: 47, y: 47, size: 6};
 
   const keyEvent$ = new Subject();
 
@@ -22,7 +28,8 @@
     .publishReplay(1)
     .refCount();
 
-  const projectile$ = new Observable(loopNewProjectiles)
+  const projectile$ = randomInterval()
+    .map(newProjectile)
     .takeUntil(bobDead$)
     .mergeMap(fireProjectile)
     .share();
@@ -68,14 +75,19 @@
         newState[id] = {id, type, source, size, x, y};
       }
       return newState;
-    }, {});
+    }, {})
+    .throttleTime(25);
 
-  const time$ = Observable.timer(0, 10)
+  const time$ = Observable.timer(0, 100)
     .takeUntil(bobDead$)
     .scan(time => time + 1)
     .share();
 
-  assign(self, {bobHp$, bobDead$, state$, time$, keyEvent$});
+  return {bobHp$, bobDead$, state$, time$, keyEvent$};
+
+  function uniqid() {
+    return lastId++;
+  }
 
   function moveBob(bob, {up, right, down, left}) {
     let {x, y, size} = bob;
@@ -86,22 +98,24 @@
     return assign({}, bob, {x, y});
   }
 
-  function loopNewProjectiles(sub) {
-    let timeout = null;
-    (function schedule() {
-      timeout = setTimeout(
-        () => {
-          sub.next(newProjectile());
-          schedule();
-        },
-        Math.random() * 200 + 50
-      );
-    })();
-    return () => clearTimeout(timeout);
+  function randomInterval() {
+    return new Observable(sub => {
+      let timeout = null;
+      (function schedule() {
+        timeout = setTimeout(
+          () => {
+            sub.next();
+            schedule();
+          },
+          Math.random() * 200 + 50
+        );
+      })();
+      return () => clearTimeout(timeout);
+    });
   }
 
   function newProjectile() {
-    const id = uniqid();
+    const id = lastId++;
     const type = Math.floor(Math.random() * 15) ? 'bullet' : 'syringe'
     const size = Math.floor(Math.random() * 3) * 2 + 2;
     const source = Math.floor(Math.random() * 4);
@@ -164,10 +178,4 @@
     }
     return dir ? {[dir]: type === 'keydown' ? 1 : 0} : null;
   }
-
-  function uniqid() {
-    if (!self.lastId) { self.lastId = 0; }
-    return self.lastId++;
-  }
-
-}(Rx, Object);
+};

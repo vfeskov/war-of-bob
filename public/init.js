@@ -5,16 +5,11 @@
   const bobDead$ = new Subject();
   const time$ = new Subject().takeUntil(bobDead$);
 
-  const worker = new Worker('worker.js');
-  worker.onmessage = ({data}) => {
-    const [type, value] = data;
-    switch (type) {
-      case 'state': state$.next(value); break;
-      case 'time': time$.next(value); break;
-      case 'bobHp': bobHp$.next(value); break;
-      case 'bobDead': bobDead$.next(); break;
-    }
-  };
+  const socket = io('http://localhost:8008');
+  socket.on('state', data => state$.next(data));
+  socket.on('time', data => time$.next(data));
+  socket.on('bobHp', data => bobHp$.next(data));
+  socket.on('bobDead', data => bobDead$.next());
 
   Observable.fromEvent(html, 'keyup').filter(({key, keyIdentifier}) =>
     keyIdentifier === 'U+0020' || key === ' '
@@ -26,12 +21,12 @@
     Observable.fromEvent(html, 'keydown')
   )
     .subscribe(({type, key, keyIdentifier}) =>
-      worker.postMessage({
+      socket.emit('keyevent', {
         type, key, keyIdentifier
       })
     );
 
-  const prevHighscore = localStorage.getItem('highscore')
+  const prevHighscore = localStorage.getItem('highscore');
 
   highscore$ = time$
     .last()
