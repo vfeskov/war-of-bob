@@ -109,10 +109,10 @@
     let x, y;
 
     switch (source) {
-      case BULLET_FROM_TOP:     x = offset; y = -size;  break;
-      case BULLET_FROM_RIGHT:   x = 100;    y = offset; break;
-      case BULLET_FROM_BOTTOM:  x = offset; y = 100;    break;
-      case BULLET_FROM_LEFT:    x = -size;  y = offset; break;
+      case PROJECTILE_FROM_TOP:     x = offset; y = -size;  break;
+      case PROJECTILE_FROM_RIGHT:   x = 100;    y = offset; break;
+      case PROJECTILE_FROM_BOTTOM:  x = offset; y = 100;    break;
+      case PROJECTILE_FROM_LEFT:    x = -size;  y = offset; break;
     }
 
     return {id, x, y, size, source, type};
@@ -123,10 +123,10 @@
       .scan(projectile => {
         let {source, x, y} = projectile;
         switch (source) {
-          case BULLET_FROM_TOP:     y++; break;
-          case BULLET_FROM_RIGHT:   x--; break;
-          case BULLET_FROM_BOTTOM:  y--; break;
-          case BULLET_FROM_LEFT:    x++; break;
+          case PROJECTILE_FROM_TOP:     y++; break;
+          case PROJECTILE_FROM_RIGHT:   x--; break;
+          case PROJECTILE_FROM_BOTTOM:  y--; break;
+          case PROJECTILE_FROM_LEFT:    x++; break;
         }
         return assign({}, projectile, {x, y});
       }, initialProjectile)
@@ -136,10 +136,10 @@
       collision$.filter(([bob, projectile]) => projectile.id === initialProjectile.id),
       projectile$.filter(({source, x, y, size}) => {
         switch (source) {
-          case BULLET_FROM_TOP:     return y > 100;
-          case BULLET_FROM_RIGHT:   return x < -size;
-          case BULLET_FROM_BOTTOM:  return y < -size;
-          case BULLET_FROM_LEFT:    return x > 100;
+          case PROJECTILE_FROM_TOP:     return y > 100;
+          case PROJECTILE_FROM_RIGHT:   return x < -size;
+          case PROJECTILE_FROM_BOTTOM:  return y < -size;
+          case PROJECTILE_FROM_LEFT:    return x > 100;
         }
       })
     )

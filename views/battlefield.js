@@ -76,7 +76,7 @@ class BattlefieldView {
   getImageName(type, source) {
     if (type === 'bob') { return type; }
     return ['FROM_TOP', 'FROM_RIGHT', 'FROM_BOTTOM', 'FROM_LEFT']
-      .filter(dir => source === eval(`BULLET_${dir}`))
+      .filter(dir => source === eval(`PROJECTILE_${dir}`))
       .map(dir => type + '-' + dir.toLowerCase().replace('_', '-'))[0];
   }
 
