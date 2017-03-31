@@ -1,0 +1,25 @@
+{
+  "name": "war-of-bob",
+  "version": "1.0.0",
+  "description": "I was on a train with no internet or movies, so I started making this game to pass the time. I didn't want to use any frameworks since I would have to use internet a lot otherwise, but I got used to RxJS patterns so much I couldn't figure out how to make the game without it.",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.15.2",
+    "rxjs": "^5.2.0",
+    "socket.io": "^1.7.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vfeskov/war-of-bob.git"
+  },
+  "author": "Vladimir Feskov <v@vladimirfeskov.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vfeskov/war-of-bob/issues"
+  },
+  "homepage": "https://github.com/vfeskov/war-of-bob#readme"
+}
