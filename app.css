@@ -17,43 +17,12 @@ body > * {
   margin: 0 auto;
 }
 
-bob {
-  background-image: url('bob.png');
-  background-repeat: no-repeat;
-  background-size: cover;
-  border: 1px solid #ddd;
-  display: block;
-  position: absolute;
-  z-index: 1;
-}
-
 #battlefield {
   border: 1px solid black;
   height: 88vmin;
+  overflow: hidden;
   position: relative;
   width: 88vmin;
-}
-
-bullet {
-  background-image: url('bullet.png');
-  background-repeat: no-repeat;
-  background-size: cover;
-  border: 1px solid #ddd;
-  display: block;
-  position: absolute;
-  z-index: 0;
-}
-
-bullet.from-top {
-  transform: rotate(180deg);
-}
-
-bullet.from-left {
-  transform: rotate(90deg);
-}
-
-bullet.from-right {
-  transform: rotate(270deg);
 }
 
 #healthbar {

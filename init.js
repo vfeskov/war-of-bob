@@ -1,23 +1,54 @@
-+function() {
-  const bob = new Bob(6);
-  const battlefield = new Battlefield(bob);
-  const timer = new Timer(bob);
++function({Observable, Subject, ReplaySubject}, {assign}) {
 
-  const singletons = {bob, battlefield, timer};
+  const state$ = new Subject();
+  const bobHp$ = new Subject();
+  const bobDead$ = new Subject();
+  const time$ = new Subject().takeUntil(bobDead$);
 
-  //const battlefieldView = new BattlefieldView(singletons);
-  const battlefieldCanvasView = new BattlefieldCanvasView(singletons);
-  const healthbarView = new HealthbarView(singletons);
-  const timerView = new TimerView(singletons);
-  const finishView = new FinishView(singletons);
+  const worker = new Worker('worker.js');
+  worker.onmessage = ({data}) => {
+    const [type, value] = data;
+    switch (type) {
+      case 'state': state$.next(value); break;
+      case 'time': time$.next(value); break;
+      case 'bobHp': bobHp$.next(value); break;
+      case 'bobDead': bobDead$.next(); break;
+    }
+  };
 
-  bob.init();
-
-  Rx.Observable.fromEvent(document.getElementById('html'), 'keyup')
-    .filter(({key, keyIdentifier}) =>
-      keyIdentifier === 'U+0020' || key === ' '
-    )
+  Observable.fromEvent(html, 'keyup').filter(({key, keyIdentifier}) =>
+    keyIdentifier === 'U+0020' || key === ' '
+  )
     .subscribe(() => location.reload());
-}();
+
+  Observable.merge(
+    Observable.fromEvent(html, 'keyup'),
+    Observable.fromEvent(html, 'keydown')
+  )
+    .subscribe(({type, key, keyIdentifier}) =>
+      worker.postMessage({
+        type, key, keyIdentifier
+      })
+    );
+
+  const prevHighscore = localStorage.getItem('highscore')
+
+  highscore$ = time$
+    .last()
+    .filter(time => time > prevHighscore)
+    .startWith(prevHighscore)
+    .publishReplay(1)
+    .refCount();
+
+  highscore$.skip(1).subscribe(highscore =>
+    localStorage.setItem('highscore', highscore)
+  );
+
+  const battlefieldView = new BattlefieldView(state$);
+  const healthbarView = new HealthbarView(bobHp$);
+  const timerView = new TimerView(time$, highscore$);
+  const finishView = new FinishView(time$, highscore$);
+
+}(Rx, Object);
 
 

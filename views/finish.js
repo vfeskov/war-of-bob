@@ -1,13 +1,13 @@
 class FinishView {
-  constructor({timer}) {
+  constructor(time$, highscore$) {
     this.createElements();
 
-    timer.time$.last().subscribe(time => {
+    time$.last().subscribe(time => {
       this.container.style.display = 'flex';
       this.time.appendChild(document.createTextNode(this.formatTime(time)))
     });
 
-    timer.highscore$.skip(1).subscribe(time =>
+    highscore$.skip(1).subscribe(time =>
       this.highscore.style.display = 'block'
     );
   }

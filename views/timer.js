@@ -1,16 +1,24 @@
 class TimerView {
-  constructor({timer}) {
+  constructor(time$, highscore$) {
     this.container = document.getElementById('timer');
     this.timeContainer = document.createElement('time');
     this.highscoreContainer = document.createElement('highscore');
     this.container.appendChild(this.timeContainer);
     this.container.appendChild(this.highscoreContainer);
 
-    timer.time$.subscribe(time => this.updateTime(this.timeContainer, time));
+    time$.subscribe(time => this.time = time, null, () => this.finished = true);
 
-    timer.highscore$.filter(v => v).subscribe(highscore =>
-      this.updateTime(this.highscoreContainer, highscore)
-    );
+    highscore$.subscribe(highscore => this.updateTime(this.highscoreContainer, highscore));
+
+    this.raf();
+  }
+
+  raf() {
+    requestAnimationFrame(() => {
+      this.updateTime(this.timeContainer, this.time);
+
+      this.finished || this.raf();
+    });
   }
 
   formatTime(time) {
@@ -20,6 +28,6 @@ class TimerView {
   updateTime(container, time) {
     const prevChild = container.firstChild;
     prevChild && container.removeChild(prevChild);
-    container.appendChild(document.createTextNode(this.formatTime(time)));
+    time && container.appendChild(document.createTextNode(this.formatTime(time)));
   }
 }

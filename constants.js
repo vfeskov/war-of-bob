@@ -1,0 +1,4 @@
+const BULLET_FROM_TOP = 0;
+const BULLET_FROM_RIGHT = 1;
+const BULLET_FROM_BOTTOM = 2;
+const BULLET_FROM_LEFT = 3;
