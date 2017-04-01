@@ -29,8 +29,11 @@ io.on('connection', client => {
     keyEvent$.complete();
   });
 });
+
+const websocketPort = process.env.WEBSOCKET_PORT || 8008;
 io.listen(8008);
 
-server.listen(3000);
+const httpPort = process.env.PORT || 3000;
+server.listen(httpPort);
 
 
