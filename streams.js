@@ -1,5 +1,5 @@
 const {Observable, ReplaySubject, Subject} = require('rxjs');
-const {PROJECTILE_FROM_TOP, PROJECTILE_FROM_RIGHT, PROJECTILE_FROM_BOTTOM, PROJECTILE_FROM_LEFT} = require('./common/constants');
+const {FROM_TOP, FROM_RIGHT, FROM_BOTTOM, FROM_LEFT, BOB, BULLET, SYRINGE} = require('./common/constants');
 const {assign} = Object;
 
 module.exports = () => {
@@ -48,7 +48,7 @@ module.exports = () => {
     .map(([bob, projectile]) => projectile)
     .startWith(100)
     .scan((hp, projectile) =>
-      projectile.type === 'bullet' ? hp - 20 : Math.min(hp + 20, 100)
+      projectile.type === BULLET ? hp - 20 : Math.min(hp + 20, 100)
     )
     .publishReplay(1)
     .refCount();
@@ -59,24 +59,23 @@ module.exports = () => {
     .subscribe(bobDead$);
 
   const bob$ = bobPlace$
+    .map(bob => assign({}, bob, {type: BOB}))
     .takeUntil(bobDead$)
     .merge(bobDead$)
     .share();
 
-  const state$ = Observable.merge(
-    bob$.map(bob => assign({}, bob, {type: 'bob'})),
-    projectile$.map(projectile => assign({}, projectile, {type: projectile.type}))
-  )
+  const state$ = Observable.merge(bob$, projectile$)
     .scan((state, {id, type, source, size, x, y, dead}) => {
-      const newState = assign({}, state);
+      // performance is especially crucial here hence mutation
       if (dead) {
-        delete newState[id];
+        delete state[id];
       } else {
-        newState[id] = {id, type, source, size, x, y};
+        state[id] = {id, type, source, size, x, y};
       }
-      return newState;
+      return state;
     }, {})
-    .throttleTime(25);
+    .throttleTime(25)
+    .map(state => assign({}, state));
 
   const time$ = Observable.timer(0, 100)
     .takeUntil(bobDead$)
@@ -116,17 +115,17 @@ module.exports = () => {
 
   function newProjectile() {
     const id = lastId++;
-    const type = Math.floor(Math.random() * 15) ? 'bullet' : 'syringe'
+    const type = Math.floor(Math.random() * 15) ? BULLET : SYRINGE
     const size = Math.floor(Math.random() * 3) * 2 + 2;
     const source = Math.floor(Math.random() * 4);
     const offset = Math.floor(Math.random() * (101 - size));
     let x, y;
 
     switch (source) {
-      case PROJECTILE_FROM_TOP:     x = offset; y = -size;  break;
-      case PROJECTILE_FROM_RIGHT:   x = 100;    y = offset; break;
-      case PROJECTILE_FROM_BOTTOM:  x = offset; y = 100;    break;
-      case PROJECTILE_FROM_LEFT:    x = -size;  y = offset; break;
+      case FROM_TOP:     x = offset; y = -size;  break;
+      case FROM_RIGHT:   x = 100;    y = offset; break;
+      case FROM_BOTTOM:  x = offset; y = 100;    break;
+      case FROM_LEFT:    x = -size;  y = offset; break;
     }
 
     return {id, x, y, size, source, type};
@@ -137,12 +136,16 @@ module.exports = () => {
       .scan(projectile => {
         let {source, x, y} = projectile;
         switch (source) {
-          case PROJECTILE_FROM_TOP:     y++; break;
-          case PROJECTILE_FROM_RIGHT:   x--; break;
-          case PROJECTILE_FROM_BOTTOM:  y--; break;
-          case PROJECTILE_FROM_LEFT:    x++; break;
+          case FROM_TOP:     y++; break;
+          case FROM_RIGHT:   x--; break;
+          case FROM_BOTTOM:  y--; break;
+          case FROM_LEFT:    x++; break;
         }
-        return assign({}, projectile, {x, y});
+        //must be faster than "return assign({}, projectile, {x, y});"
+        //performance is crucial here
+        projectile.x = x;
+        projectile.y = y;
+        return projectile;
       }, initialProjectile)
       .share();
 
@@ -150,10 +153,10 @@ module.exports = () => {
       collision$.filter(([bob, projectile]) => projectile.id === initialProjectile.id),
       projectile$.filter(({source, x, y, size}) => {
         switch (source) {
-          case PROJECTILE_FROM_TOP:     return y > 100;
-          case PROJECTILE_FROM_RIGHT:   return x < -size;
-          case PROJECTILE_FROM_BOTTOM:  return y < -size;
-          case PROJECTILE_FROM_LEFT:    return x > 100;
+          case FROM_TOP:     return y > 100;
+          case FROM_RIGHT:   return x < -size;
+          case FROM_BOTTOM:  return y < -size;
+          case FROM_LEFT:    return x > 100;
         }
       })
     )

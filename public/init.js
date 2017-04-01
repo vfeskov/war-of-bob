@@ -5,11 +5,12 @@
   const bobDead$ = new Subject();
   const time$ = new Subject().takeUntil(bobDead$);
 
-  const socket = io('http://localhost:8008');
+  const socket = io(':8008');
   socket.on('state', data => state$.next(data));
   socket.on('time', data => time$.next(data));
   socket.on('bobHp', data => bobHp$.next(data));
   socket.on('bobDead', data => bobDead$.next());
+  socket.on('disconnect', () => [state$, bobHp$, bobDead$, time$].forEach(s => s.complete()));
 
   Observable.fromEvent(html, 'keyup').filter(({key, keyIdentifier}) =>
     keyIdentifier === 'U+0020' || key === ' '

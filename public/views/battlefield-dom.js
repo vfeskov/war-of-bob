@@ -45,7 +45,7 @@ class BattlefieldDOMView {
     el.style.width = el.style.height = `${size}%`;
     if (source !== undefined) {
       ['FROM_TOP', 'FROM_RIGHT', 'FROM_BOTTOM', 'FROM_LEFT']
-        .filter(dir => source === eval(`PROJECTILE_${dir}`))
+        .filter(dir => source === eval(dir))
         .map(dir => dir.toLowerCase().replace('_', '-'))
         .forEach(dirClass => el.className += dirClass);
     }
