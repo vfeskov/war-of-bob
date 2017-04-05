@@ -1,5 +1,5 @@
 const {Observable, ReplaySubject, Subject} = require('rxjs');
-const {FROM_TOP, FROM_RIGHT, FROM_BOTTOM, FROM_LEFT, BOB, BULLET, SYRINGE} = require('./common/constants');
+const {FROM_TOP, FROM_RIGHT, FROM_BOTTOM, FROM_LEFT, BOB, BULLET, FOOD} = require('./common/constants');
 const {assign} = Object;
 
 module.exports = () => {
@@ -28,7 +28,16 @@ module.exports = () => {
     .publishReplay(1)
     .refCount();
 
-  const projectile$ = randomInterval()
+  //each level takes 10 seconds * (2 ^ (level - 1)),
+  //the higher the level the longer it takes to beat it
+  const level$ = Observable.range(0, 6)
+    .delayWhen(level => Observable.interval(getLevelDelay(level, 10000)))
+    .takeUntil(bobDead$)
+    .publishReplay(1)
+    .refCount();
+
+  const projectile$ = level$
+    .switchMap(level => randomInterval(200 - 25 * level, 400 - 50 * level))
     .map(newProjectile)
     .takeUntil(bobDead$)
     .mergeMap(fireProjectile)
@@ -46,9 +55,9 @@ module.exports = () => {
 
   const bobHp$ = collision$
     .map(([bob, projectile]) => projectile)
-    .startWith(100)
+    .startWith(6)
     .scan((hp, projectile) =>
-      projectile.type === BULLET ? hp - 20 : Math.min(hp + 20, 100)
+      projectile.type === BULLET ? hp - 1 : Math.min(hp + 1, 6)
     )
     .publishReplay(1)
     .refCount();
@@ -82,7 +91,7 @@ module.exports = () => {
     .scan(time => time + 1)
     .share();
 
-  return {bobHp$, bobDead$, state$, time$, keyEvent$};
+  return {bobHp$, bobDead$, state$, time$, level$, keyEvent$};
 
   function uniqid() {
     return lastId++;
@@ -97,7 +106,7 @@ module.exports = () => {
     return assign({}, bob, {x, y});
   }
 
-  function randomInterval() {
+  function randomInterval(min, max) {
     return new Observable(sub => {
       let timeout = null;
       (function schedule() {
@@ -106,7 +115,7 @@ module.exports = () => {
             sub.next();
             schedule();
           },
-          Math.random() * 200 + 50
+          Math.floor(Math.random() * (max - min + 1) + min)
         );
       })();
       return () => clearTimeout(timeout);
@@ -115,7 +124,7 @@ module.exports = () => {
 
   function newProjectile() {
     const id = lastId++;
-    const type = Math.floor(Math.random() * 15) ? BULLET : SYRINGE
+    const type = Math.floor(Math.random() * 15) ? BULLET : FOOD
     const size = Math.floor(Math.random() * 3) * 2 + 2;
     const source = Math.floor(Math.random() * 4);
     const offset = Math.floor(Math.random() * (101 - size));
@@ -180,5 +189,10 @@ module.exports = () => {
       dir = keyIdentifier.toLowerCase();
     }
     return dir ? {[dir]: type === 'keydown' ? 1 : 0} : null;
+  }
+
+  function getLevelDelay(level, base) {
+    if (level === 0) { return 0; }
+    return getLevelDelay(level - 1, base) + Math.round(Math.pow(2, level - 1) * base);
   }
 };

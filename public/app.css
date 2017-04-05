@@ -15,14 +15,85 @@ body {
 
 body > * {
   margin: 0 auto;
+  width: 90vmin;
+}
+
+#start {
+  height: 94vmin;
+}
+
+#nickname-container {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  font-size: 5vmin;
+  height: 100%;
+  justify-content: center;
+  line-height: 6vmin;
+  width: 100%;
+}
+
+#nickname-form > div {
+  display: flex;
+}
+
+#nickname {
+  border: none;
+  border-bottom: 0.5vmin solid black;
+  display: inline-block;
+  font-size: 5vmin;
+  height: 6.5vmin;
+  line-height: 6vmin;
+  min-width: 1vmin;
+  outline: none;
+  padding: 0 1vmin;
+}
+
+#nickname-submit {
+  background: black;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  font-size: 5vmin;
+  height: 15vmin;
+  margin-top: 5vmin;
+  outline: none;
+  width: 15vmin;
+}
+
+#nickname-submit:focus,
+#nickname-submit:hover {
+  background: #333;
 }
 
 #battlefield {
   border: 1px solid black;
-  height: 88vmin;
+  height: 90vmin;
   overflow: hidden;
   position: relative;
-  width: 88vmin;
+  width: 90vmin;
+}
+
+#battlefield #level {
+  align-items: center;
+  bottom: 0;
+  color: #f2f2f2;
+  display: flex;
+  font-size: 100vmin;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#battlefield-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
 }
 
 bob {
@@ -34,7 +105,7 @@ bob {
   z-index: 1;
 }
 
-syringe,
+food,
 bullet {
   background-image: url('images/bullet-from-bottom.png');
   background-repeat: no-repeat;
@@ -44,8 +115,8 @@ bullet {
   z-index: 0;
 }
 
-syringe {
-  background-image: url('images/syringe-from-bottom.png');
+food {
+  background-image: url('images/food-from-bottom.png');
 }
 
 .from-top {
@@ -60,13 +131,6 @@ syringe {
   transform: rotate(270deg);
 }
 
-#healthbar {
-  background: red;
-  height: 2vmin;
-  position: relative;
-  width: 88vmin;
-}
-
 health {
   background: green;
   height: 2vmin;
@@ -76,19 +140,29 @@ health {
   transition: width 1s ease;
 }
 
-#timer {
+#header {
   display: flex;
   font-size: 3.5vmin;
   height: 4vmin;
   justify-content: space-between;
   line-height: 4vmin;
-  width: 88vmin;
+  position: relative;
+  width: 90vmin;
+}
+
+#header #name {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  top: 0;
 }
 
 footer {
   height: 6vmin;
   text-align: center;
-  width: 88vmin;
+  width: 90vmin;
 }
 
 footer .icons {
@@ -101,15 +175,14 @@ footer .game {
   line-height: 3vmin;
 }
 
-finish {
+#finish {
   align-items: center;
-  display: none;
+  display: flex;
   flex-direction: column;
-  font-size: 5vmin;
+  font-size: 4vmin;
   height: 88vmin;
   justify-content: center;
   left: calc(50% - 44vmin);
-  line-height: 2em;
   position: absolute;
   text-align: center;
   top: 4vmin;
@@ -117,18 +190,47 @@ finish {
   z-index: 2;
 }
 
-finish highscore {
-  display: none;
+#finish-highscore {
   color: red;
 }
 
-finish time {
+#finish-time {
   font-weight: bold;
 }
 
-finish h1 {
-  position: absolute;
-  top: 0;
+#finish h1 {
+  font-size: 10vmin;
   left: 0;
+  position: absolute;
   right: 0;
+  top: 0;
+}
+
+#finish h3 {
+  margin-bottom: 0;
+  padding-left: 5vmin;
+  text-align: left;
+  width: 100%;
+}
+
+#finish-leaderboard {
+  height: 21vmin;
+  margin-top: 0;
+  overflow: auto;
+  padding-left: 10vmin;
+  text-align: left;
+}
+
+#finish-leaderboard li.active {
+  color: red;
+}
+
+.leaderboard-container {
+  width: 100%;
+}
+
+[contenteditable=true]:empty:before {
+  display: block;
+  color: #aaa;
+  content: attr(placeholder);
 }
