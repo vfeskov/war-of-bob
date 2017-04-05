@@ -1,7 +1,7 @@
 const TYPE = {
   [BOB]: 'bob',
   [BULLET]: 'bullet',
-  [SYRINGE]: 'syringe'
+  [FOOD]: 'food'
 };
 
 const SOURCE = {
@@ -11,24 +11,30 @@ const SOURCE = {
   [FROM_LEFT]: 'from-left'
 };
 
+//need to have canvas this big to not mangle images.
+//use transform:scale to fit it in the viewport
 const CANVAS_SIZE = 1000;//px
 
+const pxls = prcnt => Math.round(prcnt * CANVAS_SIZE / 100);
+
 class BattlefieldView {
-  constructor(state$) {
+  constructor(state$, bobHp$, level$) {
+    this.prevState = {};
+    this.state = {};
+    state$.subscribe(state => this.state = state, 0, () => this.finished = true);
+
+    bobHp$.subscribe(bobHp => this.bobHp = bobHp);
+
+    this.levelContainer = document.getElementById('level');
+    level$.subscribe(level => this.updateLevel(level + 1));
+
     this.container = document.getElementById('battlefield');
-    this.canvas = document.createElement('canvas');
+    this.canvas = document.getElementById('battlefield-canvas');
+    this.ctx = this.canvas.getContext('2d');
     this.canvas.width = CANVAS_SIZE;
     this.canvas.height = CANVAS_SIZE;
     this.updateCanvasSize();
     window.onresize = () => this.updateCanvasSize();
-
-    this.container.appendChild(this.canvas);
-
-    this.ctx = this.canvas.getContext('2d');
-
-    this.prevState = {};
-    this.state = {};
-    state$.subscribe(state => this.state = state);
 
     this.offscreenCanvas = document.createElement('canvas');
     this.offscreenCanvas.width = CANVAS_SIZE;
@@ -43,7 +49,7 @@ class BattlefieldView {
 
   updateCanvasSize() {
     const scale = (this.container.offsetWidth - 2) / CANVAS_SIZE;
-    this.canvas.style.transformOrigin = '0 0'; //scale from top left
+    this.canvas.style.transformOrigin = '0 0';
     this.canvas.style.transform = `scale(${scale})`;
   }
 
@@ -54,10 +60,10 @@ class BattlefieldView {
         'bullet-from-right',
         'bullet-from-bottom',
         'bullet-from-left',
-        'syringe-from-top',
-        'syringe-from-right',
-        'syringe-from-bottom',
-        'syringe-from-left',
+        'food-from-top',
+        'food-from-right',
+        'food-from-bottom',
+        'food-from-left',
         'bob'
       ].map(name => new Promise(resolve => {
         const image = new Image();
@@ -84,6 +90,7 @@ class BattlefieldView {
 
   render() {
     requestAnimationFrame(() => {
+      //clear previous state on the canvas
       Object.keys(this.prevState)
         .map(key => this.prevState[key])
         .forEach(({size, x, y}) => {
@@ -96,13 +103,13 @@ class BattlefieldView {
       Object.keys(this.state)
         .map(key => this.state[key])
         .forEach(({type, source, size, x, y}) => {
-          x = Math.round(x / 100 * CANVAS_SIZE);
-          y = Math.round(y / 100 * CANVAS_SIZE);
-          this.ctx.putImageData(this.getImageData(type, source, size), x, y);
+          //draw cached scaled image from the offscreen canvas
+          this.ctx.putImageData(this.getImageData(type, source, size), pxls(x), pxls(y));
+          type === BOB && this.renderHealthbar(this.ctx, x, y, size, this.bobHp);
         });
 
       this.prevState = this.state;
-      this.render();
+      !this.finished && this.render();
     });
   }
 
@@ -120,11 +127,31 @@ class BattlefieldView {
     return this.imageData[imageDataId];
   }
 
+  //need to draw scaled images beforehand on an offscreen canvas and cache the data
+  //to improve performance
   makeImageData(image, size) {
     const w = Math.round(size / 100 * CANVAS_SIZE);
     const h = Math.round(size / 100 * CANVAS_SIZE);
     this.offscreenContext.clearRect(0, 0, w, h);
     this.offscreenContext.drawImage(image, 0, 0, w, h);
     return this.offscreenContext.getImageData(0, 0, w, h);
+  }
+
+  updateLevel(level) {
+    this.levelContainer.removeChild(this.levelContainer.firstChild);
+    this.levelContainer.appendChild(document.createTextNode(level));
+  }
+
+  renderHealthbar(ctx, x, y, size, hp) {
+    const line = (xPxls1, xPxls2, color) => {
+      ctx.beginPath();
+      ctx.moveTo(xPxls1, pxls(y + size - 0.5));
+      ctx.lineTo(xPxls2, pxls(y + size - 0.5));
+      ctx.lineWidth = pxls(1);
+      ctx.strokeStyle = color;
+      ctx.stroke();
+    };
+    hp > 0 && line(pxls(x), pxls(x + size * hp / 6), '#55ba6a');
+    line(pxls(x + size * hp / 6), pxls(x + size), '#fc6e51');
   }
 }

@@ -1,41 +1,34 @@
-class FinishView {
-  constructor(time$, highscore$) {
-    this.createElements();
++function() {
+  self.FinishView = {
+    init(time$, result$) {
+      const containerEl = document.getElementById('finish');
+      const highscoreEl = document.getElementById('finish-highscore');
+      const timeEl = document.getElementById('finish-time');
+      const leaderboardEl = document.getElementById('finish-leaderboard');
 
-    time$.last().subscribe(time => {
-      this.container.style.display = 'flex';
-      this.time.appendChild(document.createTextNode(this.formatTime(time)))
-    });
+      time$.last().subscribe(time => {
+        containerEl.style.display = 'flex';
+        timeEl.appendChild(document.createTextNode(formatTime(time)))
+      });
 
-    highscore$.skip(1).subscribe(time =>
-      this.highscore.style.display = 'block'
-    );
-  }
+      result$
+        .map(r => r.topTime)
+        .combineLatest(time$.last())
+        .filter(([topTime, time]) => time >= topTime)
+        .subscribe(() => highscoreEl.style.display = 'block')
 
-  createElements() {
-    this.container = document.createElement('finish');
+      result$.subscribe(({leaderboard, place}) => {
+        leaderboard.forEach(({name, time}, index) => {
+          const li = document.createElement('li');
+          if (index === place) { li.className += 'active'; }
+          li.appendChild(document.createTextNode(`${name} ${formatTime(time)}`));
+          leaderboardEl.appendChild(li);
+        });
+      });
+    }
+  };
 
-    this.title = document.createElement('h1');
-    this.title.appendChild(document.createTextNode('WAR OF BOB'));
-
-    this.highscore = document.createElement('highscore');
-    this.highscore.appendChild(document.createTextNode('New Highscore!'));
-
-    this.timeContainer = document.createElement('time-container');
-    this.time = document.createElement('time');
-    this.timeContainer.appendChild(document.createTextNode('You survived '));
-    this.timeContainer.appendChild(this.time);
-    this.timeContainer.appendChild(document.createTextNode(' seconds. '));
-    this.timeContainer.appendChild(document.createElement('br'));
-    this.timeContainer.appendChild(document.createTextNode('Hit Space to restart.'));
-
-    this.container.appendChild(this.title);
-    this.container.appendChild(this.highscore);
-    this.container.appendChild(this.timeContainer);
-    document.body.appendChild(this.container);
-  }
-
-  formatTime(time) {
+  function formatTime(time) {
     return time.toString().replace(/(\d)$/, '.$1');
   }
-}
+}();

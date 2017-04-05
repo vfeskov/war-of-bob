@@ -1,6 +1,6 @@
 const BOB = 0;
 const BULLET = 1;
-const SYRINGE = 2;
+const FOOD = 2;
 
 const FROM_TOP = 0;
 const FROM_RIGHT = 1;
@@ -15,7 +15,7 @@ if (typeof module !== 'undefined' && module.exports) {
     FROM_LEFT,
     BOB,
     BULLET,
-    SYRINGE
+    FOOD
   };
 }
 
