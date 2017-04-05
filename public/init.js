@@ -18,7 +18,11 @@
       Object.keys(eventSubjects).forEach(id => eventSubjects[id].complete())
     );
     emitKeyEvents(html, socket);
-    monitorLatency(socket);
+    const latencyEl = document.getElementById('latency');
+    getLatency(socket).subscribe(latency => {
+      latencyEl.firstChild && latencyEl.removeChild(latencyEl.firstChild);
+      latencyEl.appendChild(document.createTextNode(`${latency}ms PING`));
+    });
 
     const {state$, bobHp$, time$, topTime$, result$, level$} = eventSubjects;
     const battlefieldView = new BattlefieldView(state$, bobHp$, level$);
@@ -66,8 +70,8 @@
       );
   }
 
-  function monitorLatency(socket) {
-    $.timer(0, 1000)
+  function getLatency(socket) {
+    return $.timer(0, 1000)
       .map(() => new $(sub => {
         const then = Date.now();
         //ping and pong events are reserved and won't work as it turns out
@@ -80,8 +84,7 @@
       .exhaust()
       //emit average of last 5 seconds every second
       .bufferCount(5, 1)
-      .map(latencies => latencies.reduce((sum, latency) => sum + latency, 0) / latencies.length)
-      .subscribe(console.log);
+      .map(latencies => latencies.reduce((sum, latency) => sum + latency, 0) / latencies.length);
   }
 }(Rx, Object);
 

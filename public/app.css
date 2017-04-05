@@ -234,3 +234,12 @@ footer .game {
   color: #aaa;
   content: attr(placeholder);
 }
+
+#latency {
+  font-size: 2vmin;
+  opacity: 0.7;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 2;
+}
