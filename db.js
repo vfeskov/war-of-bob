@@ -29,7 +29,7 @@ function saveTime(ItemName, time) {
       DomainName,
       ItemName,
       Attributes: [{Name: 'time', Value: timeS, Replace: true}]
-    }, err => err ? reject(err) : resolve(time))
+    }, err => err ? reject(err) : setTimeout(() => resolve(time), 500))
   });
 }
 

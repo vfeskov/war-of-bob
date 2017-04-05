@@ -16,6 +16,7 @@ io.on('connection', client => {
 
   client.once('start', name => {
     if (!name) { return client.disconnect(); }
+    name = name.substr(0, 16);
     const {state$, time$, bobHp$, bobDead$, level$, keyEvent$} = streams();
     const result$ = time$.last().mergeMap(time => getResult(client, name, time)).share();
     //emit topTime twice: right away and when result's available
