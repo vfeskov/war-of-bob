@@ -14,7 +14,7 @@ app.use('/seedrandom', express.static(__dirname + '/node_modules/seedrandom'));
 io.on('connection', client => {
   client.on('pingcheck', () => client.emit('pongcheck'));
 
-  const randomSeed = 1;
+  const randomSeed = Date.now();
   client.emit('randomSeed', randomSeed);
 
   client.once('start', name => {
