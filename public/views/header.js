@@ -1,5 +1,7 @@
-self.headerView = function({Observable: $}) {
-  return (name, time$, topTime$) => {
++function({assign}, {Observable: $}, target) {
+  assign(target, {headerView});
+
+  function headerView(name, time$, topTime$) {
     const timeContainer = document.getElementById('time');
     const topTimeContainer = document.getElementById('top-time');
     const levelContainer = document.getElementById('level');
@@ -9,7 +11,7 @@ self.headerView = function({Observable: $}) {
     var finished = false, time = 0;
     time$
       .startWith(0)
-      .switchMap(time => $.timer(0, 10).map(t => time + t))
+      .switchMap(time => $.timer(0, 10).map(t => time + t * 10))
       .takeUntil(time$.last())
       .subscribe(_time => time = _time);
 
@@ -26,7 +28,7 @@ self.headerView = function({Observable: $}) {
   };
 
   function formatTime(time) {
-    return time.toString().replace(/(\d\d)$/, '.$1s');
+    return time.toString().replace(/(\d\d)\d$/, '.$1s');
   }
 
   function updateTime(container, time) {
@@ -38,4 +40,4 @@ self.headerView = function({Observable: $}) {
     prevChild && container.removeChild(prevChild);
     container.appendChild(document.createTextNode(text));
   }
-}(Rx);
+}(Object, Rx, self.Views = self.Views || {});

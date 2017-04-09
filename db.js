@@ -1,6 +1,6 @@
 require('dotenv').config({silent: true});
 const aws = require('aws-sdk');
-const {pad} = require('./util');
+const {pad} = require('./common/util');
 
 const simpledb = new aws.SimpleDB({
   region    : process.env.SDB_REGION,

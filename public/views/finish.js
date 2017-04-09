@@ -1,5 +1,7 @@
-self.finishView = function() {
-  return (time$, result$) => {
++function({assign}, target) {
+  assign(target, {finishView});
+
+  function finishView(time$, result$) {
     const containerEl = document.getElementById('finish');
     const highscoreEl = document.getElementById('finish-highscore');
     const timeEl = document.getElementById('finish-time');
@@ -27,6 +29,6 @@ self.finishView = function() {
   };
 
   function formatTime(time) {
-    return time.toString().replace(/(\d\d)$/, '.$1');
+    return time.toString().replace(/(\d\d)\d$/, '.$1');
   }
-}();
+}(Object, self.Views = self.Views || {});

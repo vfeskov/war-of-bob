@@ -1,5 +1,7 @@
-self.startView = function({Observable: $}) {
-  return () => {
++function({assign}, {Observable: $}, target) {
+  assign(target, {startView});
+
+  function startView() {
     const placeholders = [
       'The Incredible',
       'qwerty',
@@ -53,4 +55,4 @@ self.startView = function({Observable: $}) {
 
     return {nickname$: submittedNickname$};
   };
-}(Rx);
+}(Object, Rx, self.Views = self.Views || {});

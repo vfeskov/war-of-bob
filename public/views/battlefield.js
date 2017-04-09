@@ -1,4 +1,11 @@
-self.battlefieldView = function({Observable: $}, {keys, assign}) {
++function(
+  {keys, assign},
+  {Observable: $},
+  {BOB, BULLET, FOOD, FROM_TOP, FROM_RIGHT, FROM_BOTTOM, FROM_LEFT},
+  target
+) {
+  assign(target, {battlefieldView});
+
   const TYPE = {
     [BOB]: 'bob',
     [BULLET]: 'bullet',
@@ -21,7 +28,7 @@ self.battlefieldView = function({Observable: $}, {keys, assign}) {
 
   const preparedImages = prepareImages();
 
-  return (bob$, projectile$, bobHp$) => {
+  function battlefieldView(bob$, projectile$, bobHp$, bobDead$) {
     const container = document.getElementById('battlefield');
     const canvas = document.getElementById('battlefield-canvas');
     const ctx = canvas.getContext('2d');
@@ -160,4 +167,4 @@ self.battlefieldView = function({Observable: $}, {keys, assign}) {
     hp > 0 && line(pxls(x), pxls(x + size * hp / 6), '#55ba6a');
     line(pxls(x + size * hp / 6), pxls(x + size), '#fc6e51');
   }
-}(Rx, Object);
+}(Object, Rx, self.Game, self.Views = self.Views || {});

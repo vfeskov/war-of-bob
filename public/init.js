@@ -1,7 +1,8 @@
 +function(
   {Observable: $, Subject, ReplaySubject},
   {assign, keys},
-  {startView, battlefieldView, finishView, headerView, latencyView, levelView}
+  {startView, battlefieldView, finishView, headerView, latencyView, levelView},
+  {start}
 ){
   const KEY_DIRECTION = {
     38: 'up',
@@ -19,13 +20,10 @@
     const eventSubjects =
       [
         'bob$',
-        'projectile$',
         'time$',
         'bobHp$',
         'topTime$',
-        'bobDead$',
-        'result$',
-        'level$'
+        'result$'
       ]
       .map(name => {
         const subject = new Subject();
@@ -38,17 +36,18 @@
     socket.on('disconnect', () =>
       keys(eventSubjects).forEach(id => eventSubjects[id].complete())
     );
-    emitKeyEvents(socket);
-
-    const {bob$, projectile$, bobHp$, time$, topTime$, result$, level$} = eventSubjects;
-
-    battlefieldView(bob$, projectile$, bobHp$);
-    latencyView(getLatency(socket));
-    levelView(level$);
-    headerView(nickname, time$, topTime$);
-    finishView(time$, result$);
-
     socket.emit('start', nickname);
+    socket.once('randomSeed', randomSeed => {
+      const {bob$, projectile$, level$, move, stop} = start(randomSeed);
+      const {bobHp$, topTime$, time$, result$} = eventSubjects;
+      emitKeyEvents(socket, {move, stop});
+
+      battlefieldView(bob$, projectile$, bobHp$);
+      latencyView(getLatency(socket));
+      levelView(level$);
+      headerView(nickname, time$, topTime$);
+      finishView(time$, result$);
+    });
   });
 
   function reloadOnSpace() {
@@ -66,14 +65,15 @@
       });
   }
 
-  function emitKeyEvents(socket) {
+  function emitKeyEvents(socket, actions) {
     $.fromEvent(document.body, 'keydown')
       .merge($.fromEvent(document.body, 'keyup'))
       .filter(({type, keyCode}) => ~['keydown', 'keyup'].indexOf(type) && KEY_DIRECTION[keyCode])
       .map(({type, keyCode}) => [type === 'keydown' ? 'move' : 'stop', KEY_DIRECTION[keyCode]])
-      .subscribe(([type, direction]) =>
-        socket.emit(type, direction)
-      );
+      .subscribe(([type, direction]) => {
+        socket.emit(type, direction);
+        actions[type](direction);
+      });
   }
 
   function getLatency(socket) {
@@ -92,6 +92,6 @@
       .bufferCount(5, 1)
       .map(latencies => latencies.reduce((sum, latency) => sum + latency, 0) / latencies.length);
   }
-}(Rx, Object, self);
+}(Rx, Object, self.Views, self.Game);
 
 
