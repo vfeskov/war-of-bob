@@ -1,59 +1,95 @@
-const TYPE = {
-  [BOB]: 'bob',
-  [BULLET]: 'bullet',
-  [FOOD]: 'food'
-};
+self.battlefieldView = function({Observable: $}, {keys, assign}) {
+  const TYPE = {
+    [BOB]: 'bob',
+    [BULLET]: 'bullet',
+    [FOOD]: 'food'
+  };
 
-const SOURCE = {
-  [FROM_TOP]: 'from-top',
-  [FROM_RIGHT]: 'from-right',
-  [FROM_BOTTOM]: 'from-bottom',
-  [FROM_LEFT]: 'from-left'
-};
+  const SOURCE = {
+    [FROM_TOP]: 'from-top',
+    [FROM_RIGHT]: 'from-right',
+    [FROM_BOTTOM]: 'from-bottom',
+    [FROM_LEFT]: 'from-left'
+  };
 
-//need to have canvas this big to not mangle images.
-//use transform:scale to fit it in the viewport
-const CANVAS_SIZE = 1000;//px
+  const CANVAS_SIZE = 1000;//px
 
-const pxls = prcnt => Math.round(prcnt * CANVAS_SIZE / 100);
+  const offscreenCanvas = document.createElement('canvas');
+  offscreenCanvas.width = CANVAS_SIZE;
+  offscreenCanvas.height = CANVAS_SIZE;
+  const offscreenCtx = offscreenCanvas.getContext('2d');
 
-class BattlefieldView {
-  constructor(state$, bobHp$, level$) {
-    this.prevState = {};
-    this.state = {};
-    state$.subscribe(state => this.state = state, 0, () => this.finished = true);
+  const preparedImages = prepareImages();
 
-    bobHp$.subscribe(bobHp => this.bobHp = bobHp);
+  return (bob$, projectile$, bobHp$) => {
+    const container = document.getElementById('battlefield');
+    const canvas = document.getElementById('battlefield-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = CANVAS_SIZE;
+    canvas.height = CANVAS_SIZE;
+    updateCanvasSize(container, canvas);
+    window.onresize = () => updateCanvasSize(container, canvas);
 
-    this.levelContainer = document.getElementById('level');
-    level$.subscribe(level => this.updateLevel(level + 1));
+    var prevState = {}, state = {}, finished = false;
+    $.merge(bob$.map(bob => assign(bob, {type: BOB})), projectile$)
+      .scan((_state, {id, type, source, size, x, y, dead}) => {
+        const newState = assign({}, _state);
+        if (dead) {
+          delete newState[id];
+        } else {
+          newState[id] = {id, type, source, size, x, y};
+        }
+        return newState;
+      }, {})
+      .subscribe(_state => state = _state, 0, () => finished = true);
 
-    this.container = document.getElementById('battlefield');
-    this.canvas = document.getElementById('battlefield-canvas');
-    this.ctx = this.canvas.getContext('2d');
-    this.canvas.width = CANVAS_SIZE;
-    this.canvas.height = CANVAS_SIZE;
-    this.updateCanvasSize();
-    window.onresize = () => this.updateCanvasSize();
+    var bobHp;
+    bobHp$.subscribe(_bobHp => bobHp = _bobHp);
 
-    this.offscreenCanvas = document.createElement('canvas');
-    this.offscreenCanvas.width = CANVAS_SIZE;
-    this.offscreenCanvas.height = CANVAS_SIZE;
-    this.offscreenContext = this.offscreenCanvas.getContext('2d');
+    var images = {}, imageData = {};
+    preparedImages
+      .then(({images: i, imageData: d}) => {
+        images = i;
+        imageData = d;
+        render();
+      });
 
-    this.images = {};
-    this.imageData = {};
-    this.prepareImages()
-      .then(() => this.render());
+    function render() {
+      requestAnimationFrame(() => {
+        keys(prevState)
+          .map(key => prevState[key])
+          .forEach(({size, x, y}) => {
+            x = Math.round(x / 100 * CANVAS_SIZE);
+            y = Math.round(y / 100 * CANVAS_SIZE);
+            size = Math.round(size / 100 * CANVAS_SIZE);
+            ctx.clearRect(x, y, size, size);
+          });
+
+        keys(state)
+          .map(key => state[key])
+          .forEach(({type, source, size, x, y}) => {
+            const data = getImageData(images, imageData, type, source, size);
+            data && ctx.putImageData(data, pxls(x), pxls(y));
+            type === BOB && renderHealthbar(ctx, x, y, size, bobHp);
+          });
+
+        prevState = state;
+        !finished && render();
+      });
+    }
+  };
+
+  function pxls(prcnt) {
+    return Math.round(prcnt * CANVAS_SIZE / 100);
   }
 
-  updateCanvasSize() {
-    const scale = (this.container.offsetWidth - 2) / CANVAS_SIZE;
-    this.canvas.style.transformOrigin = '0 0';
-    this.canvas.style.transform = `scale(${scale})`;
+  function updateCanvasSize(container, canvas) {
+    const scale = (container.offsetWidth - 2) / CANVAS_SIZE;
+    canvas.style.transformOrigin = '0 0';
+    canvas.style.transform = `scale(${scale})`;
   }
 
-  prepareImages() {
+  function prepareImages() {
     return Promise.all(
       [
         'bullet-from-top',
@@ -70,79 +106,49 @@ class BattlefieldView {
         image.onload = () => resolve({name, image});
         image.src = `images/${name}.png`;
       }))
-    ).then(images => {
-      this.images = images.reduce(
-        (res, {name, image}) => Object.assign({}, res, {[name]: image}), {}
-      );
-      this.imageData = images
-        .map(({name, image}) =>
-          (name === 'bob' ? [6] : [2, 4, 6])
-            .map(size => ({size, imageData: this.makeImageData(image, size)}))
-            .reduce(
-              (result, {size, imageData}) =>
-                Object.assign({}, result, {[`${name}-${size}`]: imageData}),
-              {}
-            )
-        )
-        .reduce((result, imageDatas) => Object.assign({}, result, imageDatas));
-    });
+    ).then(images =>
+      ({
+        images: images.reduce(
+          (res, {name, image}) => assign({}, res, {[name]: image}), {}
+        ),
+        imageData: images
+          .map(({name, image}) =>
+            (name === 'bob' ? [6] : [2, 4, 6])
+              .map(size => ({size, imageData: makeImageData(image, size)}))
+              .reduce(
+                (result, {size, imageData}) =>
+                  assign({}, result, {[`${name}-${size}`]: imageData}),
+                {}
+              )
+          )
+          .reduce((result, imageDatas) => assign({}, result, imageDatas))
+      })
+    );
   }
 
-  render() {
-    requestAnimationFrame(() => {
-      //clear previous state on the canvas
-      Object.keys(this.prevState)
-        .map(key => this.prevState[key])
-        .forEach(({size, x, y}) => {
-          x = Math.round(x / 100 * CANVAS_SIZE);
-          y = Math.round(y / 100 * CANVAS_SIZE);
-          size = Math.round(size / 100 * CANVAS_SIZE);
-          this.ctx.clearRect(x, y, size, size);
-        });
-
-      Object.keys(this.state)
-        .map(key => this.state[key])
-        .forEach(({type, source, size, x, y}) => {
-          //draw cached scaled image from the offscreen canvas
-          this.ctx.putImageData(this.getImageData(type, source, size), pxls(x), pxls(y));
-          type === BOB && this.renderHealthbar(this.ctx, x, y, size, this.bobHp);
-        });
-
-      this.prevState = this.state;
-      !this.finished && this.render();
-    });
-  }
-
-  getImageName(type, source) {
+  function getImageName(type, source) {
     return type === BOB ? TYPE[BOB] : `${TYPE[type]}-${SOURCE[source]}`;
   }
 
-  getImageData(type, source, size) {
-    const imageName = this.getImageName(type, source);
+  function getImageData(images, imageData, type, source, size) {
+    const imageName = getImageName(type, source);
     const imageDataId = `${imageName}-${size}`;
-    if (!this.imageData[imageDataId]) {
-      const image = this.images[imageName];
-      this.imageData[imageDataId] = this.makeImageData(image, size);
+    if (!imageData[imageDataId]) {
+      const image = images[imageName];
+      imageData[imageDataId] = makeImageData(image, size);
     }
-    return this.imageData[imageDataId];
+    return imageData[imageDataId];
   }
 
-  //need to draw scaled images beforehand on an offscreen canvas and cache the data
-  //to improve performance
-  makeImageData(image, size) {
+  function makeImageData(image, size) {
     const w = Math.round(size / 100 * CANVAS_SIZE);
     const h = Math.round(size / 100 * CANVAS_SIZE);
-    this.offscreenContext.clearRect(0, 0, w, h);
-    this.offscreenContext.drawImage(image, 0, 0, w, h);
-    return this.offscreenContext.getImageData(0, 0, w, h);
+    offscreenCtx.clearRect(0, 0, w, h);
+    offscreenCtx.drawImage(image, 0, 0, w, h);
+    return offscreenCtx.getImageData(0, 0, w, h);
   }
 
-  updateLevel(level) {
-    this.levelContainer.removeChild(this.levelContainer.firstChild);
-    this.levelContainer.appendChild(document.createTextNode(level));
-  }
-
-  renderHealthbar(ctx, x, y, size, hp) {
+  function renderHealthbar(ctx, x, y, size, hp) {
     const line = (xPxls1, xPxls2, color) => {
       ctx.beginPath();
       ctx.moveTo(xPxls1, pxls(y + size - 0.5));
@@ -154,4 +160,4 @@ class BattlefieldView {
     hp > 0 && line(pxls(x), pxls(x + size * hp / 6), '#55ba6a');
     line(pxls(x + size * hp / 6), pxls(x + size), '#fc6e51');
   }
-}
+}(Rx, Object);

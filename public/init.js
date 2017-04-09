@@ -1,80 +1,86 @@
-+function({Observable, Subject, ReplaySubject}, {assign}) {
-  const $ = Observable;
++function(
+  {Observable: $, Subject, ReplaySubject},
+  {assign, keys},
+  {startView, battlefieldView, finishView, headerView, latencyView, levelView}
+){
+  const KEY_DIRECTION = {
+    38: 'up',
+    39: 'right',
+    40: 'down',
+    37: 'left'
+  };
 
-  StartView.getNickname().subscribe(startGame);
-
-  function startGame(nickname) {
+  startView().nickname$.subscribe(nickname => {
     document.getElementById('game').style.display = 'block';
+    reloadOnSpace();
+    restartOnEscape();
 
     const socket = io(':8008');
-    const eventSubjects = ['state$', 'time$', 'bobHp$', 'topTime$', 'bobDead$', 'result$', 'level$']
-      .map(eventName => {
+    const eventSubjects =
+      [
+        'bob$',
+        'projectile$',
+        'time$',
+        'bobHp$',
+        'topTime$',
+        'bobDead$',
+        'result$',
+        'level$'
+      ]
+      .map(name => {
         const subject = new Subject();
-        subscribeSubjectToEvent(subject, eventName, socket);
-        return [eventName, subject];
+        ['next', 'error', 'complete'].forEach(method =>
+          socket.on(`${name}.${method}`, data => subject[method](data))
+        );
+        return [name, subject];
       })
-      .reduce((res, [eventName, subject]) => assign(res, {[eventName]: subject}), {});
+      .reduce((res, [name, subject]) => assign(res, {[name]: subject}), {});
     socket.on('disconnect', () =>
-      Object.keys(eventSubjects).forEach(id => eventSubjects[id].complete())
+      keys(eventSubjects).forEach(id => eventSubjects[id].complete())
     );
-    emitKeyEvents(html, socket);
-    const latencyEl = document.getElementById('latency');
-    getLatency(socket).subscribe(latency => {
-      latencyEl.firstChild && latencyEl.removeChild(latencyEl.firstChild);
-      latencyEl.appendChild(document.createTextNode(`${latency}ms PING`));
-    });
+    emitKeyEvents(socket);
 
-    const {state$, bobHp$, time$, topTime$, result$, level$} = eventSubjects;
-    const battlefieldView = new BattlefieldView(state$, bobHp$, level$);
-    const headerView = new HeaderView(nickname, time$, topTime$);
-    FinishView.init(time$, result$);
+    const {bob$, projectile$, bobHp$, time$, topTime$, result$, level$} = eventSubjects;
 
-    reloadOnSpace(html);
-    logoutOnEscape(html);
+    battlefieldView(bob$, projectile$, bobHp$);
+    latencyView(getLatency(socket));
+    levelView(level$);
+    headerView(nickname, time$, topTime$);
+    finishView(time$, result$);
 
     socket.emit('start', nickname);
-  }
+  });
 
-  function subscribeSubjectToEvent(subject, eventName, socket) {
-    ['next', 'error', 'complete']
-      .forEach(method =>
-        socket.on(
-          `${eventName}.${method}`,
-          data => subject[method](data)
-        )
-      );
-  }
-
-  function reloadOnSpace(html) {
-    $.fromEvent(html, 'keyup').filter(({keyCode}) => keyCode === 32)
+  function reloadOnSpace() {
+    $.fromEvent(document.body, 'keyup')
+      .filter(({keyCode}) => keyCode === 32)
       .subscribe(() => location.reload());
   }
 
-  function logoutOnEscape(html) {
-    $.fromEvent(html, 'keyup').filter(({keyCode}) => keyCode === 27)
+  function restartOnEscape() {
+    $.fromEvent(document.body, 'keyup')
+      .filter(({keyCode}) => keyCode === 27)
       .subscribe(() => {
         localStorage.removeItem('nickname');
         location.reload();
       });
   }
 
-  function emitKeyEvents(html, socket) {
-    $.merge(
-      $.fromEvent(html, 'keyup'),
-      $.fromEvent(html, 'keydown')
-    )
-      .subscribe(({type, key, keyIdentifier}) =>
-        socket.emit('keyevent', {
-          type, key, keyIdentifier
-        })
+  function emitKeyEvents(socket) {
+    $.fromEvent(document.body, 'keydown')
+      .merge($.fromEvent(document.body, 'keyup'))
+      .filter(({type, keyCode}) => ~['keydown', 'keyup'].indexOf(type) && KEY_DIRECTION[keyCode])
+      .map(({type, keyCode}) => [type === 'keydown' ? 'move' : 'stop', KEY_DIRECTION[keyCode]])
+      .subscribe(([type, direction]) =>
+        socket.emit(type, direction)
       );
   }
 
   function getLatency(socket) {
     return $.timer(0, 1000)
+      .takeUntil($.fromEvent(socket, 'disconnect'))
       .map(() => new $(sub => {
         const then = Date.now();
-        //ping and pong events are reserved and won't work as it turns out
         socket.emit('pingcheck');
         socket.on('pongcheck', () => {
           sub.next(Date.now() - then)
@@ -86,6 +92,6 @@
       .bufferCount(5, 1)
       .map(latencies => latencies.reduce((sum, latency) => sum + latency, 0) / latencies.length);
   }
-}(Rx, Object);
+}(Rx, Object, self);
 
 

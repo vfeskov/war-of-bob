@@ -1,36 +1,35 @@
-class HeaderView {
-  constructor(name, time$, topTime$) {
-    this.timeContainer = document.getElementById('time');
-    this.topTimeContainer = document.getElementById('top-time');
-    this.levelContainer = document.getElementById('level');
+self.headerView = function() {
+  return (name, time$, topTime$) => {
+    const timeContainer = document.getElementById('time');
+    const topTimeContainer = document.getElementById('top-time');
+    const levelContainer = document.getElementById('level');
 
     document.getElementById('header-nickname').appendChild(document.createTextNode(name));
 
-    time$.distinctUntilChanged().subscribe(time => this.time = time, 0, () => this.finished = true);
+    var finished = false, time = 0;
+    time$.subscribe(_time => time = _time, 0, () => finished = true);
 
-    topTime$.subscribe(topTime => this.updateTime(this.topTimeContainer, topTime));
+    topTime$.subscribe(topTime => updateTime(topTimeContainer, topTime));
 
-    this.render();
-  }
+    (function render() {
+      requestAnimationFrame(() => {
+        updateTime(timeContainer, time);
+        !finished && render();
+      });
+    })();
+  };
 
-  render() {
-    requestAnimationFrame(() => {
-      this.updateTime(this.timeContainer, this.time);
-      !this.finished && this.render();
-    });
-  }
-
-  formatTime(time) {
+  function formatTime(time) {
     return time.toString().replace(/(\d)$/, '.$1s');
   }
 
-  updateTime(container, time) {
-    time && this.updateText(container, this.formatTime(time));
+  function updateTime(container, time) {
+    time && updateText(container, formatTime(time));
   }
 
-  updateText(container, text) {
+  function updateText(container, text) {
     const prevChild = container.firstChild;
     prevChild && container.removeChild(prevChild);
     container.appendChild(document.createTextNode(text));
   }
-}
+}();
