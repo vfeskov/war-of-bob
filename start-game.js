@@ -126,9 +126,11 @@ module.exports = () => {
     .merge(bobDead$)
     .share();
 
-  const time$ = $.timer(0, 100)
+  const _time$ = $.timer(0, 10)
     .takeUntil(bobDead$)
     .share();
+
+  const time$ = _time$.filter(t => t % 100 === 0).merge(_time$.last());
 
   const bobDeadSub = bobHp$
     .filter(hp => hp === 0)

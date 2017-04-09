@@ -27,6 +27,6 @@ self.finishView = function() {
   };
 
   function formatTime(time) {
-    return time.toString().replace(/(\d)$/, '.$1');
+    return time.toString().replace(/(\d\d)$/, '.$1');
   }
 }();
