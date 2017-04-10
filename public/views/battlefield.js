@@ -1,7 +1,7 @@
 +function(
   {keys, assign},
   {Observable: $},
-  {BOB, BULLET, FOOD, FROM_TOP, FROM_RIGHT, FROM_BOTTOM, FROM_LEFT},
+  {moveProjectile, BOB, BULLET, FOOD, FROM_TOP, FROM_RIGHT, FROM_BOTTOM, FROM_LEFT},
   target
 ) {
   assign(target, {battlefieldView});
@@ -28,7 +28,7 @@
 
   const preparedImages = prepareImages();
 
-  function battlefieldView(bob$, projectile$, bobHp$, bobDead$) {
+  function battlefieldView(bob$, projectile$, bobHp$) {
     const container = document.getElementById('battlefield');
     const canvas = document.getElementById('battlefield-canvas');
     const ctx = canvas.getContext('2d');
@@ -36,6 +36,16 @@
     canvas.height = CANVAS_SIZE;
     updateCanvasSize(container, canvas);
     window.onresize = () => updateCanvasSize(container, canvas);
+
+    projectile$ = projectile$
+      //backup backend projectile states by moving projectiles on frontend too.
+      //each time a new projectile state comes from backend, drop frontend state
+      //and start moving the received state.
+      .switchMap(projectile =>
+        projectile.dead ? $.of(projectile) : $.interval(projectile.speed)
+          .startWith(projectile)
+          .scan(moveProjectile)
+      );
 
     var prevState = {}, state = {}, finished = false;
     $.merge(bob$.map(bob => assign(bob, {type: BOB})), projectile$)
@@ -65,12 +75,9 @@
       requestAnimationFrame(() => {
         keys(prevState)
           .map(key => prevState[key])
-          .forEach(({size, x, y}) => {
-            x = Math.round(x / 100 * CANVAS_SIZE);
-            y = Math.round(y / 100 * CANVAS_SIZE);
-            size = Math.round(size / 100 * CANVAS_SIZE);
-            ctx.clearRect(x, y, size, size);
-          });
+          .forEach(({size, x, y}) =>
+            ctx.clearRect(pxls(x), pxls(y), pxls(size), pxls(size))
+          );
 
         keys(state)
           .map(key => state[key])

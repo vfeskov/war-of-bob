@@ -17,14 +17,7 @@
     restartOnEscape();
 
     const socket = io(':8008');
-    const eventSubjects =
-      [
-        'bob$',
-        'time$',
-        'bobHp$',
-        'topTime$',
-        'result$'
-      ]
+    const eventSubjects = ['bob$', 'time$', 'bobHp$', 'bobDead$', 'level$', 'projectile$', 'topTime$', 'result$']
       .map(name => {
         const subject = new Subject();
         ['next', 'error', 'complete'].forEach(method =>
@@ -37,17 +30,14 @@
       keys(eventSubjects).forEach(id => eventSubjects[id].complete())
     );
     socket.emit('start', nickname);
-    socket.once('randomSeed', randomSeed => {
-      const {bob$, projectile$, level$, move, stop} = start(randomSeed);
-      const {bobHp$, topTime$, time$, result$} = eventSubjects;
-      emitKeyEvents(socket, {move, stop});
+    emitKeyEvents(socket);
 
-      battlefieldView(bob$, projectile$, bobHp$);
-      latencyView(getLatency(socket));
-      levelView(level$);
-      headerView(nickname, time$, topTime$);
-      finishView(time$, result$);
-    });
+    const {bob$, projectile$, level$, bobHp$, bobDead$, topTime$, time$, result$} = eventSubjects;
+    battlefieldView(bob$, projectile$, bobHp$);
+    latencyView(getLatency(socket));
+    levelView(level$);
+    headerView(nickname, time$, topTime$);
+    finishView(time$, result$);
   });
 
   function reloadOnSpace() {
@@ -65,15 +55,12 @@
       });
   }
 
-  function emitKeyEvents(socket, actions) {
+  function emitKeyEvents(socket) {
     $.fromEvent(document.body, 'keydown')
       .merge($.fromEvent(document.body, 'keyup'))
       .filter(({type, keyCode}) => ~['keydown', 'keyup'].indexOf(type) && KEY_DIRECTION[keyCode])
       .map(({type, keyCode}) => [type === 'keydown' ? 'move' : 'stop', KEY_DIRECTION[keyCode]])
-      .subscribe(([type, direction]) => {
-        socket.emit(type, direction);
-        actions[type](direction);
-      });
+      .subscribe(([type, direction]) => socket.emit(type, direction));
   }
 
   function getLatency(socket) {

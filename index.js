@@ -14,14 +14,14 @@ app.use('/seedrandom', express.static(__dirname + '/node_modules/seedrandom'));
 io.on('connection', client => {
   client.on('pingcheck', () => client.emit('pongcheck'));
 
-  const randomSeed = Date.now();
-  client.emit('randomSeed', randomSeed);
+  // const randomSeed = Date.now();
+  // client.emit('randomSeed', randomSeed);
 
   client.once('start', name => {
     if (!name) { return client.disconnect(); }
     name = name.substr(0, 16);
 
-    const {bob$, projectile$, time$, bobHp$, bobDead$, move, stop, end} = start(randomSeed);
+    const {bob$, projectile$, time$, bobHp$, bobDead$, level$, move, stop, end} = start(/*randomSeed*/);
     const result$ = time$.last()
       .mergeMap(time => getTime(name).then(topTime => [topTime, time]))
       .mergeMap(([topTime, time]) => topTime < time ? saveTime(name, time) : $.of(topTime))
@@ -30,7 +30,7 @@ io.on('connection', client => {
       .share();
     const topTime$ = result$.map(({topTime}) => topTime).merge(getTime(name));
 
-    const subs = ['bob$', 'time$', 'bobHp$', 'result$', 'topTime$']
+    const subs = ['bob$', 'projectile$', 'time$', 'bobHp$', 'bobDead$', 'result$', 'topTime$', 'level$']
       .map(name => eval(name).subscribe(
         data => client.emit(`${name}.next`, data),
         data => client.emit(`${name}.error`, data),

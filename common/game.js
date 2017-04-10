@@ -14,13 +14,13 @@
     FROM_BOTTOM = 2,
     FROM_LEFT = 3;
 
-  assign(target, {start, BOB, BULLET, FOOD, FROM_TOP, FROM_RIGHT, FROM_BOTTOM, FROM_LEFT});
+  assign(target, {moveProjectile, BOB, BULLET, FOOD, FROM_TOP, FROM_RIGHT, FROM_BOTTOM, FROM_LEFT, start});
 
   const INITIAL_BOB = {id: 0, x: 47, y: 47, size: 6};
   const DIRECTIONS = ['up', 'right', 'down', 'left'];
 
   function start(randomSeed) {
-    const random = seedrandom(randomSeed);
+    const random = randomSeed ? seedrandom(randomSeed) : Math.random;
     const randomInterval = randomIntervalGenerator(random);
     const clientRequest$ = new Subject();
     const bobDead$ = new ReplaySubject(1);
@@ -38,7 +38,7 @@
         const {up, right, down, left} = dirs;
         return up || right || down || left ?
           $.timer(0, 25).mapTo(dirs) :
-          $.empty();
+          $.of({});
       })
       .scan((bob, {up, right, down, left}) => {
         let {x, y, size} = bob;
@@ -71,9 +71,11 @@
       .scan(id => ++id, 1)
       .map(id => {
         const type = Math.floor(random() * 10) ? BULLET : FOOD,
-          size = Math.floor(random() * 3) * 2 + 2, //2, 4 or 6
+          size = type === FOOD ? 4 : Math.floor(random() * 3) * 2 + 2, //2, 4 or 6
           source = Math.floor(random() * 4),
-          offset = Math.floor(random() * (101 - size));
+          offset = Math.floor(random() * (101 - size))
+          speed = 15 + (Math.round(size / 2) - 1) * 10, //1% per 15, 25 or 35 ms
+          hpImpact = type === FOOD ? 2 : -Math.round(size / 2);
         let x, y;
         switch (source) {
           case FROM_TOP:     x = offset; y = -size;  break;
@@ -81,21 +83,12 @@
           case FROM_BOTTOM:  x = offset; y = 100;    break;
           case FROM_LEFT:    x = -size;  y = offset; break;
         }
-        return {id, x, y, size, source, type};
+        return {id, x, y, size, source, type, speed, hpImpact};
       })
       .takeUntil(bobDead$)
       .mergeMap(initialProjectile => {
-        const projectile$ = $.timer(0, 25)
-          .scan(projectile => {
-            let {source, x, y} = projectile;
-            switch (source) {
-              case FROM_TOP:     y++; break;
-              case FROM_RIGHT:   x--; break;
-              case FROM_BOTTOM:  y--; break;
-              case FROM_LEFT:    x++; break;
-            }
-            return assign({}, projectile, {x, y});
-          }, initialProjectile)
+        const projectile$ = $.timer(0, initialProjectile.speed)
+          .scan(moveProjectile, initialProjectile)
           .share();
 
         const projectileDead$ = collision$
@@ -130,9 +123,7 @@
     const bobHp$ = collision$
       .map(([bob, projectile]) => projectile)
       .startWith(6)
-      .scan((hp, projectile) =>
-        projectile.type === BULLET ? hp - 1 : Math.min(hp + 1, 6)
-      )
+      .scan((hp, {hpImpact}) => hp = Math.min(Math.max(hp + hpImpact, 0), 6))
       .publishReplay(1)
       .refCount();
 
@@ -151,7 +142,7 @@
       .merge(_time$.last().map(([start]) => Date.now() - start));
 
     const bobDeadSub = bobHp$
-      .filter(hp => hp === 0)
+      .filter(hp => hp <= 0)
       .mapTo({id: INITIAL_BOB.id, dead: true})
       .first()
       .subscribe(bobDead$);
@@ -172,6 +163,16 @@
     };
   };
 
+  function moveProjectile(projectile) {
+    let {source, x, y} = projectile;
+    switch (source) {
+      case FROM_TOP:     y++; break;
+      case FROM_RIGHT:   x--; break;
+      case FROM_BOTTOM:  y--; break;
+      case FROM_LEFT:    x++; break;
+    }
+    return assign({}, projectile, {x, y});
+  }
 }(Object, ...(typeof module !== 'undefined') ?
   [require('rxjs'), require('./util'), require('seedrandom'), module.exports] :
   [Rx, self.Util, s => new Math.seedrandom(s), self.Game = {}]
