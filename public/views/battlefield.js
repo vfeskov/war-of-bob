@@ -1,3 +1,4 @@
+'use strict';
 +function(
   {keys, assign},
   {Observable: $},
@@ -37,18 +38,20 @@
     updateCanvasSize(container, canvas);
     window.onresize = () => updateCanvasSize(container, canvas);
 
-    projectile$ = projectile$
-      //backup backend projectile states by moving projectiles on frontend too.
-      //each time a new projectile state comes from backend, drop frontend state
-      //and start moving the received state.
-      .switchMap(projectile =>
-        projectile.dead ? $.of(projectile) : $.interval(projectile.speed)
+    var prevState = {}, state = {}, finished = false;
+    const _projectile$ = projectile$
+      .filter(p => !p.dead)
+      .mergeMap(projectile => {
+        const {id, speed} = projectile;
+        const dead$ = projectile$.filter(p => p.id === id && p.dead);
+        return $.interval(speed)
           .startWith(projectile)
           .scan(moveProjectile)
-      );
-
-    var prevState = {}, state = {}, finished = false;
-    $.merge(bob$.map(bob => assign(bob, {type: BOB})), projectile$)
+          .takeUntil(dead$)
+          .merge(dead$);
+      });
+    const _bob$ = bob$.map(bob => assign(bob, {type: BOB}));
+    $.merge(_bob$, _projectile$)
       .scan((_state, {id, type, source, size, x, y, dead}) => {
         const newState = assign({}, _state);
         if (dead) {

@@ -1,3 +1,4 @@
+'use strict';
 +function(
   {Observable: $, Subject, ReplaySubject},
   {assign, keys},

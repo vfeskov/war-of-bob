@@ -1,3 +1,4 @@
+'use strict';
 +function(
   {assign, keys},
   {Observable: $, ReplaySubject, Subject},
@@ -73,7 +74,7 @@
         const type = Math.floor(random() * 10) ? BULLET : FOOD,
           size = type === FOOD ? 4 : Math.floor(random() * 3) * 2 + 2, //2, 4 or 6
           source = Math.floor(random() * 4),
-          offset = Math.floor(random() * (101 - size))
+          offset = Math.floor(random() * (101 - size)),
           speed = 15 + (Math.round(size / 2) - 1) * 10, //1% per 15, 25 or 35 ms
           hpImpact = type === FOOD ? 2 : -Math.round(size / 2);
         let x, y;
@@ -83,13 +84,15 @@
           case FROM_BOTTOM:  x = offset; y = 100;    break;
           case FROM_LEFT:    x = -size;  y = offset; break;
         }
-        return {id, x, y, size, source, type, speed, hpImpact};
+        return {id, x, y, size, source, type, speed, hpImpact, brandNew: true};
       })
       .takeUntil(bobDead$)
       .mergeMap(initialProjectile => {
-        const projectile$ = $.timer(0, initialProjectile.speed)
-          .scan(moveProjectile, initialProjectile)
-          .share();
+        const projectile$ = $.interval(initialProjectile.speed)
+          .startWith(initialProjectile)
+          .scan(moveProjectile)
+          .publishReplay(1)
+          .refCount();
 
         const projectileDead$ = collision$
           .filter(([bob, projectile]) => projectile.id === initialProjectile.id)
@@ -151,7 +154,7 @@
       bobHp$,
       bobDead$,
       bob$,
-      projectile$,
+      projectile$: projectile$.filter(({brandNew, dead}) => brandNew || dead),
       time$,
       level$,
       move: direction => clientRequest$.next({type: 'move', direction}),
@@ -164,14 +167,16 @@
   };
 
   function moveProjectile(projectile) {
-    let {source, x, y} = projectile;
+    const nextProjectile = assign({}, projectile);
+    if (nextProjectile.brandNew) { delete nextProjectile.brandNew; }
+    let {source, x, y} = nextProjectile;
     switch (source) {
       case FROM_TOP:     y++; break;
       case FROM_RIGHT:   x--; break;
       case FROM_BOTTOM:  y--; break;
       case FROM_LEFT:    x++; break;
     }
-    return assign({}, projectile, {x, y});
+    return assign(nextProjectile, {x, y});
   }
 }(Object, ...(typeof module !== 'undefined') ?
   [require('rxjs'), require('./util'), require('seedrandom'), module.exports] :

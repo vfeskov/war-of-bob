@@ -1,3 +1,4 @@
+'use strict';
 +function({assign}, target) {
   assign(target, {latencyView});
 

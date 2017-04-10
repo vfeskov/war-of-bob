@@ -1,3 +1,4 @@
+'use strict';
 +function({assign}, {Observable: $}, target) {
   assign(target, {randomIntervalGenerator, pad});
 
