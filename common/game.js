@@ -178,12 +178,12 @@
   }
 
   function randomBulletSize() {
-    const dice = floor(random() * 6);
+    const dice = floor(random() * 9);
     // out of 9 bullets
     // 2 are large
-    if (dice === 0) { return 6; }
+    if (dice < 2) { return 6; }
     // 3 are medium
-    if (dice < 3)   { return 4; }
+    if (dice < 5)   { return 4; }
     // 4 are small
     return 2;
   }
