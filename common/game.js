@@ -1,9 +1,9 @@
 'use strict';
 +function(
   {assign, keys},
+  {random, pow, min, max, floor, round},
   {Observable: $, ReplaySubject, Subject},
-  {randomIntervalGenerator},
-  seedrandom,
+  {randomInterval},
   target
 ) {
   const BOB = 0,
@@ -20,9 +20,7 @@
   const INITIAL_BOB = {id: 0, x: 47, y: 47, size: 6};
   const DIRECTIONS = ['up', 'right', 'down', 'left'];
 
-  function start(randomSeed) {
-    const random = randomSeed ? seedrandom(randomSeed) : Math.random;
-    const randomInterval = randomIntervalGenerator(random);
+  function start() {
     const clientRequest$ = new Subject();
     const bobDead$ = new ReplaySubject(1);
 
@@ -60,7 +58,7 @@
       .delayWhen(theLevel => $.interval(
         +function getDelay(level, base) {
           if (level === 0) { return 0; }
-          return getDelay(level - 1, base) + Math.round(Math.pow(2, level - 1) * base);
+          return getDelay(level - 1, base) + round(pow(2, level - 1) * base);
         }(theLevel, 10000)
       ))
       .takeUntil(bobDead$)
@@ -71,12 +69,12 @@
       .switchMap(level => randomInterval(200 - 25 * level, 400 - 50 * level))
       .scan(id => ++id, 1)
       .map(id => {
-        const type = Math.floor(random() * 10) ? BULLET : FOOD,
-          size = type === FOOD ? 4 : Math.floor(random() * 3) * 2 + 2, //2, 4 or 6
-          source = Math.floor(random() * 4),
-          offset = Math.floor(random() * (101 - size)),
-          speed = 15 + (Math.round(size / 2) - 1) * 10, //1% per 15, 25 or 35 ms
-          hpImpact = type === FOOD ? 2 : -Math.round(size / 2);
+        const type = floor(random() * 10) ? BULLET : FOOD,
+          size = type === FOOD ? 4 : randomBulletSize(),
+          source = floor(random() * 4),
+          offset = floor(random() * (101 - size)),
+          speed = 15 + (round(size / 2) - 1) * 10, //1% per 15, 25 or 35 ms
+          hpImpact = type === FOOD ? 2 : -round(size / 2);
         let x, y;
         switch (source) {
           case FROM_TOP:     x = offset; y = -size;  break;
@@ -126,7 +124,7 @@
     const bobHp$ = collision$
       .map(([bob, projectile]) => projectile)
       .startWith(6)
-      .scan((hp, {hpImpact}) => hp = Math.min(Math.max(hp + hpImpact, 0), 6))
+      .scan((hp, {hpImpact}) => hp = min(max(hp + hpImpact, 0), 6))
       .publishReplay(1)
       .refCount();
 
@@ -178,7 +176,18 @@
     }
     return assign(nextProjectile, {x, y});
   }
-}(Object, ...(typeof module !== 'undefined') ?
-  [require('rxjs'), require('./util'), require('seedrandom'), module.exports] :
-  [Rx, self.Util, s => new Math.seedrandom(s), self.Game = {}]
+
+  function randomBulletSize() {
+    const dice = floor(random() * 6);
+    // out of 9 bullets
+    // 2 are large
+    if (dice === 0) { return 6; }
+    // 3 are medium
+    if (dice < 3)   { return 4; }
+    // 4 are small
+    return 2;
+  }
+}(Object, Math, ...(typeof module !== 'undefined') ?
+  [require('rxjs'), require('./util'), module.exports] :
+  [Rx, self.Util, self.Game = {}]
 );

@@ -1,4 +1,5 @@
 const express = require('express');
+const compression = require('compression');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
@@ -6,22 +7,19 @@ const {Observable: $} = require('rxjs/Observable');
 const {start} = require('./common/game');
 const {getTime, saveTime, getPlace, getLeaderboard} = require('./db');
 
+app.use(compression());
 app.use(express.static(__dirname + '/public'));
 app.use('/common', express.static(__dirname + '/common'));
 app.use('/rxjs', express.static(__dirname + '/node_modules/rxjs/bundles'));
-app.use('/seedrandom', express.static(__dirname + '/node_modules/seedrandom'));
 
 io.on('connection', client => {
   client.on('pingcheck', () => client.emit('pongcheck'));
-
-  // const randomSeed = Date.now();
-  // client.emit('randomSeed', randomSeed);
 
   client.once('start', name => {
     if (!name) { return client.disconnect(); }
     name = name.substr(0, 16);
 
-    const {bob$, projectile$, time$, bobHp$, bobDead$, level$, move, stop, end} = start(/*randomSeed*/);
+    const {bob$, projectile$, time$, bobHp$, bobDead$, level$, move, stop, end} = start();
     const result$ = time$.last()
       .mergeMap(time => getTime(name).then(topTime => [topTime, time]))
       .mergeMap(([topTime, time]) => topTime < time ? saveTime(name, time) : $.of(topTime))
