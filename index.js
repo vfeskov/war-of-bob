@@ -47,7 +47,7 @@ io.on('connection', client => {
 });
 
 const websocketPort = process.env.WEBSOCKET_PORT || 8008;
-io.listen(8008);
+io.listen(websocketPort);
 
 const httpPort = process.env.PORT || 3000;
 server.listen(httpPort);
