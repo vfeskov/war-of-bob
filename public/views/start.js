@@ -7,8 +7,6 @@
       'The Incredible',
       'qwerty',
       'Speedy',
-      'Teeth',
-      'Chuck',
       'Asthma',
       'Two Legs',
       'user6410323'
