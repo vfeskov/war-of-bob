@@ -65,16 +65,12 @@
   }
 
   function getLatency(socket) {
+    const {now} = Date;
     return $.timer(0, 1000)
       .takeUntil($.fromEvent(socket, 'disconnect'))
-      .map(() => new $(sub => {
-        const then = Date.now();
-        socket.emit('pingcheck');
-        socket.on('pongcheck', () => {
-          sub.next(Date.now() - then)
-          sub.complete();
-        });
-      }))
+      .map(() => now())
+      .do(socket.emit('pingcheck'))
+      .map(then => $.fromEvent(socket, 'pongcheck').first().mapTo(now() - then))
       .exhaust()
       //emit average of last 5 seconds every second
       .bufferCount(5, 1)
