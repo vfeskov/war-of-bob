@@ -6,10 +6,14 @@
   {start}
 ){
   const KEY_DIRECTION = {
-    38: 'up',
-    39: 'right',
-    40: 'down',
-    37: 'left'
+    38: 'up',     //arrow up
+    87: 'up',     //w
+    39: 'right',  //arrow right
+    68: 'right',  //d
+    40: 'down',   //arrow down
+    83: 'down',   //s
+    37: 'left',   //arrow left
+    65: 'left'    //a
   };
 
   startView().nickname$.subscribe(nickname => {
