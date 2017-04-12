@@ -27,6 +27,7 @@
         .withLatestFrom(nickname$)
         .map(([ev, nickname]) => nickname)
         .filter(v => v)
+        .map(nickname => nickname.substr(0, 16))
     )
       .first()
       .share();

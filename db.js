@@ -25,7 +25,8 @@ function getTime(ItemName) {
         if (Name === 'time') { return time = Value; }
       });
       return parseInt(time);
-    });
+    })
+    .first();
 }
 
 function saveTime(ItemName, time) {
@@ -35,7 +36,7 @@ function saveTime(ItemName, time) {
       Attributes: [{Name: 'time', Value: pad(time, 10), Replace: true}]
     })
     .delay(500)
-    .mapTo(time);
+    .first();
 }
 
 function getPlace(time) {
@@ -44,6 +45,7 @@ function getPlace(time) {
       SelectExpression: `select count(*) from \`${DomainName}\` where time > '${timeS}'`
     })
     .map(({Items}) => parseInt(Items[0].Attributes[0].Value))
+    .first();
 }
 
 function getLeaderboard() {
@@ -55,5 +57,6 @@ function getLeaderboard() {
         Attributes.reduce((res, {Name, Value}) => assign(res, {[Name]: Value}), {})
       ))
       .map(item => assign(item, {time: parseInt(item.time)}))
-    );
+    )
+    .first();
 }
