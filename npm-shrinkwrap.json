@@ -52,11 +52,6 @@
       "from": "blob@0.0.4",
       "resolved": "https://registry.npmjs.org/blob/-/blob-0.0.4.tgz"
     },
-    "browser-fingerprint": {
-      "version": "0.0.1",
-      "from": "browser-fingerprint@0.0.1",
-      "resolved": "https://registry.npmjs.org/browser-fingerprint/-/browser-fingerprint-0.0.1.tgz"
-    },
     "buffer": {
       "version": "4.9.1",
       "from": "buffer@4.9.1",
@@ -68,11 +63,6 @@
           "resolved": "https://registry.npmjs.org/isarray/-/isarray-1.0.0.tgz"
         }
       }
-    },
-    "bytes": {
-      "version": "2.3.0",
-      "from": "bytes@2.3.0",
-      "resolved": "https://registry.npmjs.org/bytes/-/bytes-2.3.0.tgz"
     },
     "callsite": {
       "version": "1.0.0",
@@ -99,47 +89,15 @@
       "from": "component-inherit@0.0.3",
       "resolved": "https://registry.npmjs.org/component-inherit/-/component-inherit-0.0.3.tgz"
     },
-    "compressible": {
-      "version": "2.0.10",
-      "from": "compressible@>=2.0.8 <2.1.0",
-      "resolved": "https://registry.npmjs.org/compressible/-/compressible-2.0.10.tgz"
-    },
-    "compression": {
-      "version": "1.6.2",
-      "from": "compression@latest",
-      "resolved": "https://registry.npmjs.org/compression/-/compression-1.6.2.tgz",
-      "dependencies": {
-        "debug": {
-          "version": "2.2.0",
-          "from": "debug@>=2.2.0 <2.3.0",
-          "resolved": "https://registry.npmjs.org/debug/-/debug-2.2.0.tgz"
-        },
-        "ms": {
-          "version": "0.7.1",
-          "from": "ms@0.7.1",
-          "resolved": "https://registry.npmjs.org/ms/-/ms-0.7.1.tgz"
-        }
-      }
-    },
     "cookie": {
       "version": "0.3.1",
       "from": "cookie@0.3.1",
       "resolved": "https://registry.npmjs.org/cookie/-/cookie-0.3.1.tgz"
     },
-    "core-js": {
-      "version": "1.2.7",
-      "from": "core-js@>=1.1.1 <2.0.0",
-      "resolved": "https://registry.npmjs.org/core-js/-/core-js-1.2.7.tgz"
-    },
     "crypto-browserify": {
       "version": "1.0.9",
       "from": "crypto-browserify@1.0.9",
       "resolved": "https://registry.npmjs.org/crypto-browserify/-/crypto-browserify-1.0.9.tgz"
-    },
-    "cuid": {
-      "version": "1.3.8",
-      "from": "cuid@latest",
-      "resolved": "https://registry.npmjs.org/cuid/-/cuid-1.3.8.tgz"
     },
     "dotenv": {
       "version": "4.0.0",
@@ -250,11 +208,6 @@
       "from": "negotiator@0.6.1",
       "resolved": "https://registry.npmjs.org/negotiator/-/negotiator-0.6.1.tgz"
     },
-    "node-fingerprint": {
-      "version": "0.0.2",
-      "from": "node-fingerprint@0.0.2",
-      "resolved": "https://registry.npmjs.org/node-fingerprint/-/node-fingerprint-0.0.2.tgz"
-    },
     "node-static": {
       "version": "0.7.9",
       "from": "node-static@latest",
@@ -269,11 +222,6 @@
       "version": "0.0.3",
       "from": "object-component@0.0.3",
       "resolved": "https://registry.npmjs.org/object-component/-/object-component-0.0.3.tgz"
-    },
-    "on-headers": {
-      "version": "1.0.1",
-      "from": "on-headers@>=1.0.1 <1.1.0",
-      "resolved": "https://registry.npmjs.org/on-headers/-/on-headers-1.0.1.tgz"
     },
     "optimist": {
       "version": "0.6.1",
@@ -402,11 +350,6 @@
       "version": "3.0.0",
       "from": "uuid@3.0.0",
       "resolved": "https://registry.npmjs.org/uuid/-/uuid-3.0.0.tgz"
-    },
-    "vary": {
-      "version": "1.1.1",
-      "from": "vary@>=1.1.0 <1.2.0",
-      "resolved": "https://registry.npmjs.org/vary/-/vary-1.1.1.tgz"
     },
     "wordwrap": {
       "version": "0.0.3",
