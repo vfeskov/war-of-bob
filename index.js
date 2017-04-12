@@ -32,6 +32,10 @@ function setupServer(nodeStatic, http, socketIo) {
     Object.assign(srvs, {[id]: new nodeStatic.Server(path, {cache: 3600, gzip: true})})
   , {});
   const server = http.createServer((req, res) => {
+    if (req.url === '/heartbeat') {
+      res.statusCode = 200;
+      return res.end();
+    }
     if (req.url === '/Rx.min.js') {
       return staticSrvs.modules.serveFile('/rxjs/bundles/Rx.min.js', 200, {}, req, res);
     }
