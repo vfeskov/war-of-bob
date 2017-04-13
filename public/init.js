@@ -3,17 +3,17 @@
   {Observable: $, Subject, ReplaySubject},
   {assign, keys},
   {startView, battlefieldView, finishView, headerView, latencyView, levelView},
-  {start}
+  {UP, RIGHT, DOWN, LEFT}
 ){
   const KEY_DIRECTION = {
-    38: 'up',     //arrow up
-    87: 'up',     //w
-    39: 'right',  //arrow right
-    68: 'right',  //d
-    40: 'down',   //arrow down
-    83: 'down',   //s
-    37: 'left',   //arrow left
-    65: 'left'    //a
+    38: UP,     //arrow up
+    87: UP,     //w
+    39: RIGHT,  //arrow right
+    68: RIGHT,  //d
+    40: DOWN,   //arrow down
+    83: DOWN,   //s
+    37: LEFT,   //arrow left
+    65: LEFT    //a
   };
 
   startView().nickname$.subscribe(nickname => {
@@ -63,7 +63,7 @@
   function emitKeyEvents(socket) {
     $.fromEvent(document.body, 'keydown')
       .merge($.fromEvent(document.body, 'keyup'))
-      .filter(({type, keyCode}) => ~['keydown', 'keyup'].indexOf(type) && KEY_DIRECTION[keyCode])
+      .filter(({type, keyCode}) => ~['keydown', 'keyup'].indexOf(type) && KEY_DIRECTION[keyCode] !== undefined)
       .map(({type, keyCode}) => [type === 'keydown' ? 'move' : 'stop', KEY_DIRECTION[keyCode]])
       .subscribe(([type, direction]) => socket.emit(type, direction));
   }

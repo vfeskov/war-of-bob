@@ -7,9 +7,14 @@
     FROM_TOP = 0,
     FROM_RIGHT = 1,
     FROM_BOTTOM = 2,
-    FROM_LEFT = 3;
+    FROM_LEFT = 3,
 
-  assign(target, {moveProjectile, BOB, BULLET, FOOD, FROM_TOP, FROM_RIGHT, FROM_BOTTOM, FROM_LEFT});
+    UP = 0,
+    RIGHT = 1,
+    DOWN = 2,
+    LEFT = 3;
+
+  assign(target, {moveProjectile, BOB, BULLET, FOOD, FROM_TOP, FROM_RIGHT, FROM_BOTTOM, FROM_LEFT, UP, RIGHT, DOWN, LEFT});
 
   function moveProjectile(projectile) {
     const nextProjectile = assign({}, projectile);

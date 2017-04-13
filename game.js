@@ -1,13 +1,13 @@
 'use strict';
 const {Observable: $, ReplaySubject, Subject} = require('rxjs'),
   {randomInterval} = require('./util'),
-  {moveProjectile, BOB, BULLET, FOOD, FROM_TOP, FROM_RIGHT, FROM_BOTTOM, FROM_LEFT} = require('./common/game.js'),
+  {moveProjectile, BOB, BULLET, FOOD, FROM_TOP, FROM_RIGHT, FROM_BOTTOM, FROM_LEFT, UP, RIGHT, DOWN, LEFT} = require('./common/game.js'),
   {assign, keys} = Object,
   {random, pow, min, max, floor, round} = Math,
   {now} = Date;
 
 const INITIAL_BOB = {id: 0, x: 47, y: 47, size: 6};
-const DIRECTIONS = ['up', 'right', 'down', 'left'];
+const DIRECTIONS = [UP, RIGHT, DOWN, LEFT];
 
 module.exports = {start};
 
@@ -25,17 +25,16 @@ function start({move$, stop$, end$}) {
     .scan((dirs, dir) => assign({}, dirs, dir), {})
     .distinctUntilChanged((next, prev) => !DIRECTIONS.some(d => next[d] !== prev[d]))
     .switchMap(dirs => {
-      const {up, right, down, left} = dirs;
-      return up || right || down || left ?
+      return dirs[UP] || dirs[RIGHT] || dirs[DOWN] || dirs[LEFT] ?
         $.timer(0, 25).mapTo(dirs) :
         $.of({});
     })
-    .scan((bob, {up, right, down, left}) => {
+    .scan((bob, dirs) => {
       let {x, y, size} = bob;
-      if (up && y > 0)              { y--; }
-      if (right && x < 100 - size)  { x++; }
-      if (down && y < 100 - size)   { y++; }
-      if (left && x > 0)            { x--; }
+      if (dirs[UP] && y > 0)              { y--; }
+      if (dirs[RIGHT] && x < 100 - size)  { x++; }
+      if (dirs[DOWN] && y < 100 - size)   { y++; }
+      if (dirs[LEFT] && x > 0)            { x--; }
       return assign({}, bob, {x, y});
     }, INITIAL_BOB)
     .startWith(INITIAL_BOB)
