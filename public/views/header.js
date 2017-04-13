@@ -5,7 +5,6 @@
   function headerView(name, time$, topTime$) {
     const timeContainer = document.getElementById('time');
     const topTimeContainer = document.getElementById('top-time');
-    const levelContainer = document.getElementById('level');
 
     document.getElementById('header-nickname').appendChild(document.createTextNode(name));
 
@@ -16,7 +15,7 @@
       .takeUntil(time$.last())
       .subscribe(_time => time = _time);
 
-    time$.last().subscribe(_time => time = _time, 0, () => finished = true);
+    time$.last().subscribe(_time => { time = _time; finished = true; });
 
     topTime$.subscribe(topTime => updateTime(topTimeContainer, topTime));
 
