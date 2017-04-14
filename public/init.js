@@ -21,7 +21,7 @@
     reloadOnSpace();
     restartOnEscape();
 
-    const socket = io(':8008');
+    const socket = io('/');
     const eventSubjects = ['bob$', 'time$', 'bobHp$', 'bobDead$', 'level$', 'projectile$', 'topTime$', 'result$']
       .map(name => {
         const subject = new Subject();
@@ -80,6 +80,6 @@
       .bufferCount(5, 1)
       .map(latencies => latencies.reduce((sum, latency) => sum + latency, 0) / latencies.length);
   }
-}(Rx, Object, self.Views, self.Game);
+}(self.Rx, Object, self.Views, self.Game);
 
 

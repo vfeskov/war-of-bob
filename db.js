@@ -1,5 +1,4 @@
 'use strict';
-require('dotenv').config({silent: true});
 const aws = require('aws-sdk'),
   {Observable: $} = require('rxjs'),
   {pad} = require('./util'),

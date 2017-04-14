@@ -1,6 +1,5 @@
 'use strict';
 const {Observable: $} = require('rxjs/Observable'),
-  {assign} = Object,
   {floor, random} = Math;
 
 module.exports = {randomInterval, pad};

@@ -1,4 +1,5 @@
 'use strict';
+require('dotenv').config({silent: true});
 const {Observable: $} = require('rxjs/Observable');
 const {server, io} = setupServer(
   require('node-static'),
@@ -17,11 +18,7 @@ io.on('connection', client => {
   });
 });
 
-const websocketPort = process.env.WEBSOCKET_PORT || 8008;
-io.listen(websocketPort);
-
-const httpPort = process.env.PORT || 3000;
-server.listen(httpPort);
+server.listen(3000);
 
 function setupServer(nodeStatic, http, socketIo) {
   const staticSrvs = [

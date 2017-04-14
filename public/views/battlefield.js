@@ -107,8 +107,7 @@
   }
 
   function prepareImages() {
-    return Promise.all(
-      [
+    return Promise.all([
         'bullet-from-top',
         'bullet-from-right',
         'bullet-from-bottom',
@@ -118,7 +117,8 @@
         'food-from-bottom',
         'food-from-left',
         'bob'
-      ].map(name => new Promise(resolve => {
+      ]
+      .map(name => new Promise(resolve => {
         const image = new Image();
         image.onload = () => resolve({name, image});
         image.src = `images/${name}.png`;
@@ -177,4 +177,4 @@
     hp > 0 && line(pxls(x), pxls(x + size * hp / 6), '#55ba6a');
     line(pxls(x + size * hp / 6), pxls(x + size), '#fc6e51');
   }
-}(Object, Rx, self.Game, self.Views = self.Views || {});
+}(Object, self.Rx, self.Game, self.Views = self.Views || {});

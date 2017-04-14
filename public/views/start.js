@@ -16,7 +16,8 @@
     const startEl = document.getElementById('start');
     const buttonEl = document.getElementById('nickname-submit');
 
-    const nicknameKeyevent$ = $.merge($.fromEvent(nicknameEl, 'keyup'), $.fromEvent(nicknameEl, 'keydown'));
+    const nicknameKeyevent$ = $.fromEvent(nicknameEl, 'keyup')
+      .merge($.fromEvent(nicknameEl, 'keydown'));
     const nicknameEnter$ = nicknameKeyevent$.filter(({keyCode}) => keyCode === 13);
     const nickname$ = nicknameKeyevent$.map(ev => ev.target.textContent.trim()).startWith('');
     const submitClick$ = $.fromEvent(buttonEl, 'click');
@@ -55,4 +56,4 @@
 
     return {nickname$: submittedNickname$};
   };
-}(Object, Rx, self.Views = self.Views || {});
+}(Object, self.Rx, self.Views = self.Views || {});

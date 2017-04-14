@@ -40,4 +40,4 @@
     prevChild && container.removeChild(prevChild);
     container.appendChild(document.createTextNode(text));
   }
-}(Object, Rx, self.Views = self.Views || {});
+}(Object, self.Rx, self.Views = self.Views || {});
