@@ -239,17 +239,17 @@ footer .copyright {
 
 #latency-container {
   display: flex;
-  font-size: 2vmin;
-  height: 3vmin;
-  left: 0;
-  line-height: 3vmin;
+  font-size: 3vmin;
+  height: 4vmin;
+  right: 0;
+  line-height: 4vmin;
   position: absolute;
-  top: 1.5vmin;
+  top: 1vmin;
   visibility: hidden;
 }
 
 #latency-container img {
-  height: 3vmin;
+  height: 4vmin;
   margin-right: 0.5vmin;
-  width: 3vmin;
+  width: 4vmin;
 }
