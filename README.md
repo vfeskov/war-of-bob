@@ -1,5 +1,4 @@
-War of Bob
------------
+# War of Bob
 
 An online game on websocket with highscore tracking on AWS SimpleDB, configured to be deployed on AWS Multi-container Docker EB environment with LetsEncrypt free SSL certificate set up.
 
