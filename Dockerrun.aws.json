@@ -64,7 +64,15 @@
           "containerPath": "/tmp/docker.sock",
           "readOnly": true
         }
-      ]
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/aws/elasticbeanstalk/main/dockerlogs",
+          "awslogs-region": "eu-central-1",
+          "awslogs-stream-prefix": "nginx-proxy"
+        }
+      }
     },
     {
       "name": "letsencrypt-nginx-proxy-companion",
@@ -86,10 +94,18 @@
           "containerPath": "/var/run/docker.sock",
           "readOnly": true
         }
-      ]
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/aws/elasticbeanstalk/main/dockerlogs",
+          "awslogs-region": "eu-central-1",
+          "awslogs-stream-prefix": "letsencrypt-nginx-proxy-companion"
+        }
+      }
     },
     {
-      "name": "app",
+      "name": "war-of-bob",
       "image": "vfeskov/war-of-bob",
       "essential": true,
       "memoryReservation": 256,
@@ -106,7 +122,15 @@
           "name": "LETSENCRYPT_EMAIL",
           "value": "v@vladimirfeskov.com"
         }
-      ]
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/aws/elasticbeanstalk/main/dockerlogs",
+          "awslogs-region": "eu-central-1",
+          "awslogs-stream-prefix": "war-of-bob"
+        }
+      }
     }
   ]
 }
