@@ -5,17 +5,6 @@
   {startView, battlefieldView, finishView, headerView, latencyView, levelView},
   {UP, RIGHT, DOWN, LEFT}
 ){
-  const KEY_DIRECTION = {
-    38: UP,     //arrow up
-    87: UP,     //w
-    39: RIGHT,  //arrow right
-    68: RIGHT,  //d
-    40: DOWN,   //arrow down
-    83: DOWN,   //s
-    37: LEFT,   //arrow left
-    65: LEFT    //a
-  };
-
   startView().nickname$.subscribe(nickname => {
     document.getElementById('game').style.display = 'block';
     reloadOnSpace();
@@ -61,6 +50,16 @@
   }
 
   function emitKeyEvents(socket) {
+    const KEY_DIRECTION = {
+      38: UP,     //arrow up
+      87: UP,     //w
+      39: RIGHT,  //arrow right
+      68: RIGHT,  //d
+      40: DOWN,   //arrow down
+      83: DOWN,   //s
+      37: LEFT,   //arrow left
+      65: LEFT    //a
+    };
     $.fromEvent(document.body, 'keydown')
       .merge($.fromEvent(document.body, 'keyup'))
       .filter(({type, keyCode}) => ~['keydown', 'keyup'].indexOf(type) && KEY_DIRECTION[keyCode] !== undefined)
@@ -78,7 +77,8 @@
       .exhaust()
       //emit average of last 5 seconds every second
       .bufferCount(5, 1)
-      .map(latencies => latencies.reduce((sum, latency) => sum + latency, 0) / latencies.length);
+      .map(latencies => latencies.reduce((sum, latency) => sum + latency, 0) / latencies.length)
+      .map(Math.round);
   }
 }(self.Rx, Object, self.Views, self.Game);
 
