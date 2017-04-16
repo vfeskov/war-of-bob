@@ -13,6 +13,7 @@
   "devDependencies": {},
   "scripts": {
     "start": "node server",
+    "push": "docker build -t vfeskov/war-of-bob . && docker push vfeskov/war-of-bob",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
