@@ -227,8 +227,9 @@ health {
 
 footer {
   height: 8vmin;
-  position: relative;
-  width: 84vmin;
+  position: absolute;
+  bottom: 0;
+  left: calc(50% - 42vmin);
 }
 
 footer .icons {
