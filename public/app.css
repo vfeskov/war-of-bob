@@ -2,6 +2,10 @@
   box-sizing: border-box;
 }
 
+a {
+  color: #000;
+}
+
 body,
 html {
   height: 100%;
@@ -15,11 +19,12 @@ body {
 
 body > * {
   margin: 0 auto;
-  width: 90vmin;
+  width: 84vmin;
 }
 
 #start {
   height: 92vmin;
+  border-bottom: 1px solid #000;
 }
 
 #nickname-container {
@@ -69,10 +74,10 @@ body > * {
 
 #battlefield {
   border: 1px solid black;
-  height: 90vmin;
+  height: 84vmin;
   overflow: hidden;
   position: relative;
-  width: 90vmin;
+  width: 84vmin;
 }
 
 #battlefield #level {
@@ -143,11 +148,11 @@ health {
 #header {
   display: flex;
   font-size: 3vmin;
-  height: 4vmin;
+  height: 8vmin;
   justify-content: space-between;
-  line-height: 4vmin;
+  line-height: 8vmin;
   position: relative;
-  width: 90vmin;
+  width: 84vmin;
 }
 
 #header #name {
@@ -165,13 +170,13 @@ health {
   display: flex;
   flex-direction: column;
   font-size: 4vmin;
-  height: 90vmin;
+  height: 84vmin;
   justify-content: center;
-  left: calc(50% - 44vmin);
+  left: calc(50% - 42vmin);
   position: absolute;
   text-align: center;
-  top: 4vmin;
-  width: 90vmin;
+  top: 8vmin;
+  width: 84vmin;
   z-index: 2;
 }
 
@@ -221,30 +226,30 @@ health {
 }
 
 footer {
-  height: 6vmin;
+  height: 8vmin;
   position: relative;
-  text-align: center;
-  width: 90vmin;
+  width: 84vmin;
 }
 
 footer .icons {
   font-size: 1.5vmin;
-  line-height: 3vmin;
+  padding-top: 1.25vmin;
 }
 
 footer .copyright {
   font-size: 2vmin;
-  line-height: 3vmin;
+  line-height: 5.25vmin;
 }
 
 #latency-container {
+  align-items: center;
   display: flex;
   font-size: 3vmin;
-  height: 4vmin;
+  height: 8vmin;
   right: 0;
-  line-height: 4vmin;
+  line-height: 8vmin;
   position: absolute;
-  top: 1vmin;
+  top: 0;
   visibility: hidden;
 }
 

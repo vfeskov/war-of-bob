@@ -8,6 +8,7 @@ const {server, io} = setupServer(
 );
 const game = require('./game');
 const {getTime, saveTime, getPlace, getLeaderboard} = require('./db');
+const {emitObservables, observablesFromEvents} = require('./common/socket-util');
 
 io.on('connection', client => {
   client.on('pingcheck', () => client.emit('pongcheck'));
@@ -47,6 +48,8 @@ function setupServer(nodeStatic, http, socketIo) {
 }
 
 function start(client, name) {
+  const {move$, stop$} = observablesFromEvents(client, ['move$', 'stop$']);
+
   const {
     bob$,
     projectile$,
@@ -55,8 +58,8 @@ function start(client, name) {
     bobDead$,
     level$
   } = game.start({
-    move$: $.fromEvent(client, 'move'),
-    stop$: $.fromEvent(client, 'stop'),
+    move$,
+    stop$,
     end$: $.fromEvent(client, 'disconnect')
   });
 
@@ -73,12 +76,16 @@ function start(client, name) {
 
   finalTopTime$.subscribe(() => {});
 
-  ['bob$', 'projectile$', 'time$', 'bobHp$', 'bobDead$', 'result$', 'topTime$', 'level$']
-    .forEach(name => eval(name).subscribe(
-      data => client.emit(`${name}.next`, data),
-      data => client.emit(`${name}.error`, data),
-      data => client.emit(`${name}.complete`, data)
-    ));
+  emitObservables(client, {
+    bob$,
+    projectile$,
+    time$,
+    bobHp$,
+    bobDead$,
+    result$,
+    topTime$,
+    level$
+  });
 
   result$.combineLatest(bob$, projectile$).subscribe(0, 0, () => client.disconnect());
 }

@@ -1,37 +1,40 @@
 'use strict';
 +function(
-  {Observable: $, Subject, ReplaySubject},
+  {Observable: $},
   {assign, keys},
   {startView, battlefieldView, finishView, headerView, latencyView, levelView},
-  {UP, RIGHT, DOWN, LEFT}
+  {UP, RIGHT, DOWN, LEFT},
+  {observablesFromEvents, emitObservables}
 ){
   startView().nickname$.subscribe(nickname => {
     document.getElementById('game').style.display = 'block';
+
     reloadOnSpace();
     restartOnEscape();
 
-    const socket = io('/');
-    const eventSubjects = ['bob$', 'time$', 'bobHp$', 'bobDead$', 'level$', 'projectile$', 'topTime$', 'result$']
-      .map(name => {
-        const subject = new Subject();
-        ['next', 'error', 'complete'].forEach(method =>
-          socket.on(`${name}.${method}`, data => subject[method](data))
-        );
-        return [name, subject];
-      })
-      .reduce((res, [name, subject]) => assign(res, {[name]: subject}), {});
-    socket.on('disconnect', () =>
-      keys(eventSubjects).forEach(id => eventSubjects[id].complete())
-    );
-    socket.emit('start', nickname);
-    emitKeyEvents(socket);
+    const server = io('/');
 
-    const {bob$, projectile$, level$, bobHp$, bobDead$, topTime$, time$, result$} = eventSubjects;
-    battlefieldView(bob$, projectile$, bobHp$);
-    latencyView(getLatency(socket));
-    levelView(level$);
-    headerView(nickname, time$, topTime$);
-    finishView(time$, result$);
+    const {move$, stop$} = getBobsMovement();
+    emitObservables(server, {move$, stop$});
+
+    const o = observablesFromEvents(server, [
+      'bob$',
+      'projectile$',
+      'time$',
+      'bobHp$',
+      'bobDead$',
+      'result$',
+      'topTime$',
+      'level$'
+    ]);
+
+    battlefieldView(o.bob$, o.projectile$, o.bobHp$);
+    latencyView(getLatency(server));
+    levelView(o.level$);
+    headerView(nickname, o.time$, o.topTime$);
+    finishView(o.time$, o.result$);
+
+    server.emit('start', nickname);
   });
 
   function reloadOnSpace() {
@@ -49,7 +52,7 @@
       });
   }
 
-  function emitKeyEvents(socket) {
+  function getBobsMovement(server) {
     const KEY_DIRECTION = {
       38: UP,     //arrow up
       87: UP,     //w
@@ -60,26 +63,29 @@
       37: LEFT,   //arrow left
       65: LEFT    //a
     };
-    $.fromEvent(document.body, 'keydown')
+    const movement$ = $.fromEvent(document.body, 'keydown')
       .merge($.fromEvent(document.body, 'keyup'))
       .filter(({type, keyCode}) => ~['keydown', 'keyup'].indexOf(type) && KEY_DIRECTION[keyCode] !== undefined)
       .map(({type, keyCode}) => [type === 'keydown' ? 'move' : 'stop', KEY_DIRECTION[keyCode]])
-      .subscribe(([type, direction]) => socket.emit(type, direction));
+      .share();
+    const move$ = movement$.filter(([t]) => t === 'move').map(([t, d]) => d)
+    const stop$ = movement$.filter(([t]) => t === 'stop').map(([t, d]) => d)
+    return {move$, stop$};
   }
 
-  function getLatency(socket) {
+  function getLatency(server) {
     const {now} = Date;
     return $.timer(0, 1000)
-      .takeUntil($.fromEvent(socket, 'disconnect'))
+      .takeUntil($.fromEvent(server, 'disconnect'))
       .map(() => now())
-      .do(() => socket.emit('pingcheck'))
-      .map(then => $.fromEvent(socket, 'pongcheck').first().map(() => now() - then))
+      .do(() => server.emit('pingcheck'))
+      .map(then => $.fromEvent(server, 'pongcheck').first().map(() => now() - then))
       .exhaust()
       //emit average of last 5 seconds every second
       .bufferCount(5, 1)
       .map(latencies => latencies.reduce((sum, latency) => sum + latency, 0) / latencies.length)
       .map(Math.round);
   }
-}(self.Rx, Object, self.Views, self.Game);
+}(self.Rx, Object, self.Views, self.Game, self.SocketUtil);
 
 

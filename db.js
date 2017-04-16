@@ -1,19 +1,24 @@
 'use strict';
-const aws = require('aws-sdk'),
+const {SimpleDB} = require('aws-sdk'),
   {Observable: $} = require('rxjs'),
   {pad} = require('./util'),
   {assign} = Object;
 
 const DomainName = process.env.SDB_DOMAIN_NAME;
-const origSimpledb = new aws.SimpleDB({
-    region    : process.env.SDB_REGION,
-    endpoint  : process.env.SDB_ENDPOINT
-  });
+const origSimpledb = new SimpleDB({
+  region    : process.env.SDB_REGION,
+  endpoint  : process.env.SDB_ENDPOINT
+});
 const simpledb = ['getAttributes', 'putAttributes', 'select']
-    .map(method => [method, $.bindNodeCallback(origSimpledb[method].bind(origSimpledb))])
-    .reduce((res, [method, observable]) => assign(res, {[method]: observable}), {});
+  .map(method => [method, $.bindNodeCallback(origSimpledb[method].bind(origSimpledb))])
+  .reduce((res, [method, observable]) => assign(res, {[method]: observable}), {});
 
-module.exports = {getTime, saveTime, getPlace, getLeaderboard};
+module.exports = {
+  getTime,
+  saveTime,
+  getPlace,
+  getLeaderboard
+};
 
 function getTime(ItemName) {
   return simpledb.getAttributes({DomainName, ItemName})
@@ -24,8 +29,7 @@ function getTime(ItemName) {
         if (Name === 'time') { return time = Value; }
       });
       return parseInt(time);
-    })
-    .first();
+    });
 }
 
 function saveTime(ItemName, time) {
@@ -34,8 +38,7 @@ function saveTime(ItemName, time) {
       ItemName,
       Attributes: [{Name: 'time', Value: pad(time, 10), Replace: true}]
     })
-    .delay(500)
-    .first();
+    .delay(500);
 }
 
 function getPlace(time) {
@@ -43,8 +46,7 @@ function getPlace(time) {
   return simpledb.select({
       SelectExpression: `select count(*) from \`${DomainName}\` where time > '${timeS}'`
     })
-    .map(({Items}) => parseInt(Items[0].Attributes[0].Value))
-    .first();
+    .map(({Items}) => parseInt(Items[0].Attributes[0].Value));
 }
 
 function getLeaderboard() {
@@ -56,6 +58,5 @@ function getLeaderboard() {
         Attributes.reduce((res, {Name, Value}) => assign(res, {[Name]: Value}), {})
       ))
       .map(item => assign(item, {time: parseInt(item.time)}))
-    )
-    .first();
+    );
 }
