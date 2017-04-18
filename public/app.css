@@ -228,7 +228,7 @@ health {
 footer {
   height: 8vmin;
   position: absolute;
-  bottom: 0;
+  top: 92vmin;
   left: calc(50% - 42vmin);
 }
 
