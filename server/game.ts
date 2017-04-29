@@ -36,7 +36,8 @@ function start({move$, stop$, end$}) {
         $.of({});
     })
     .scan((bob: any, dirs) => {
-      let {x, y, size} = bob;
+      const {size} = bob;
+      let {x, y} = bob;
       if (dirs[UP] && y > 0)              { y--; }
       if (dirs[RIGHT] && x < 100 - size)  { x++; }
       if (dirs[DOWN] && y < 100 - size)   { y++; }
@@ -48,8 +49,8 @@ function start({move$, stop$, end$}) {
     .publishReplay(1)
     .refCount();
 
-  //each level takes 10 seconds * (2 ^ (level - 1)),
-  //the higher the level the longer it takes to beat it
+  // each level takes 10 seconds * (2 ^ (level - 1)),
+  // the higher the level the longer it takes to beat it
   const level$ = $.range(0, 6)
     .delayWhen(theLevel => $.interval(
       +function getDelay(level, base) {
@@ -61,6 +62,8 @@ function start({move$, stop$, end$}) {
     .publishReplay(1)
     .refCount();
 
+  let collision$;
+
   const projectile$ = level$
     .switchMap(level => randomInterval(200 - 25 * level, 400 - 50 * level))
     .scan((id: number) => ++id, 1)
@@ -69,7 +72,7 @@ function start({move$, stop$, end$}) {
         size = type === FOOD ? 4 : randomBulletSize(),
         source = floor(random() * 4),
         offset = floor(random() * (101 - size)),
-        speed = 15 + (round(size / 2) - 1) * 10, //1% per 15, 25 or 35 ms
+        speed = 15 + (round(size / 2) - 1) * 10, // 1% per 15, 25 or 35 ms
         hpImpact = type === FOOD ? 2 : -round(size / 2);
       let x, y;
       switch (source) {
@@ -82,7 +85,7 @@ function start({move$, stop$, end$}) {
     })
     .takeUntil(bobDead$)
     .mergeMap(initialProjectile => {
-      const projectile$ = $.interval(initialProjectile.speed)
+      const _projectile$ = $.interval(initialProjectile.speed)
         .startWith(initialProjectile as any)
         .scan(moveProjectile)
         .publishReplay(1)
@@ -90,7 +93,7 @@ function start({move$, stop$, end$}) {
 
       const projectileDead$ = collision$
         .filter(([bob, projectile]) => projectile.id === initialProjectile.id)
-        .merge(projectile$.filter(({source, x, y, size}) => {
+        .merge(_projectile$.filter(({source, x, y, size}) => {
           switch (source) {
             case FROM_TOP:     return y > 100;
             case FROM_RIGHT:   return x < -size;
@@ -107,7 +110,7 @@ function start({move$, stop$, end$}) {
     })
     .share();
 
-  const collision$ = bobPlace$
+  collision$ = bobPlace$
     .combineLatest(projectile$)
     .filter(([bob, projectile]) =>
       (projectile.x + projectile.size - 1) >= bob.x &&

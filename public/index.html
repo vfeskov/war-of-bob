@@ -1,55 +1,14 @@
 <!doctype html>
-<html id="html">
-  <head>
-    <title>WAR OF BOB</title>
-    <link rel="stylesheet" href="/app.css" />
-    <link rel="icon" type="image/png" href="/images/favicon.png" />
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-  </head>
-  <body>
-    <div id="start" style="display: none">
-      <div id="nickname-container">
-        <div>
-          Bob "<span id="nickname" contenteditable="true" spellcheck="false" placeholder="The Example"></span>" Roberts
-        </div>
-        <div>
-          <input type="submit" id="nickname-submit" value="GO"/>
-        </div>
-      </div>
-    </div>
-    <div id="game" style="display: none">
-      <div id="header">
-        <div id="time"></div>
-        <div id="name">Bob "<span id="header-nickname"></span>" Roberts</div>
-        <div class="top-time-container">
-          <span id="top-time"></span>
-        </div>
-      </div>
-      <div id="battlefield">
-        <div id="level"></div>
-        <canvas id="battlefield-canvas"></canvas>
-      </div>
-    </div>
-    <footer>
-      <div id="latency-container"><img src="images/latency.svg" /><span id="latency"></span></div>
-      <div class="icons">Icons by <a href="http://www.freepik.com" title="Freepik">Freepik</a>, <a href="http://www.flaticon.com/authors/madebyoliver" title="Madebyoliver">Madebyoliver</a>, <a href="http://www.flaticon.com/authors/nikita-golubev" target="_blank" title="Nikita Golubev">Nikita Golubev</a> &amp; <a href="http://www.flaticon.com/authors/simpleicon" title="SimpleIcon" target="_blank">SimpleIcon</a> licensed by <a href="http://creativecommons.org/licenses/by/3.0/" target="_blank" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
-      <div class="copyright">
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>WAR OF BOB</title>
+  <base href="/">
 
-        <a href="https://github.com/vfeskov/war-of-bob" target="_blank">Source code</a> &middot;
-        <a target="_blank" href="https://vfeskov.com">Vladimir Feskov</a> &copy; 2017
-      </div>
-    </footer>
-    <div id="finish" style="display:none">
-      <h1>WAR OF BOB</h1>
-      <div id="finish-highscore" style="display:none">New Highscore!</div>
-      <div id="finish-time-container">You survived <span id="finish-time"></span> seconds.</div>
-      <div class="leaderboard-container">
-        <h3>Top Bobs</h3>
-        <ol id="finish-leaderboard"></ol>
-      </div>
-      <div>Hit Space to restart, Escape to exit.</div>
-    </div>
-    <script src="/bundle.min.js"></script>
-  </body>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="favicon.png" />
+</head>
+<body>
+  <wob-root>Loading...</wob-root>
+<script type="text/javascript" src="inline.bundle.js"></script><script type="text/javascript" src="polyfills.bundle.js"></script><script type="text/javascript" src="styles.bundle.js"></script><script type="text/javascript" src="vendor.bundle.js"></script><script type="text/javascript" src="main.bundle.js"></script></body>
 </html>

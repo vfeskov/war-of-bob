@@ -1,23 +1,4 @@
-* {
-  box-sizing: border-box;
-}
-
-a {
-  color: #000;
-}
-
-body,
-html {
-  height: 100%;
-  width: 100%;
-}
-
-body {
-  font-family: Arial;
-  margin: 0;
-}
-
-body > * {
+:host > * {
   margin: 0 auto;
   width: 84vmin;
 }
@@ -99,29 +80,6 @@ body > * {
   top: 0;
   left: 0;
   z-index: 2;
-}
-
-bob {
-  background-image: url('images/bob.png');
-  background-repeat: no-repeat;
-  background-size: cover;
-  display: block;
-  position: absolute;
-  z-index: 1;
-}
-
-food,
-bullet {
-  background-image: url('images/bullet-from-bottom.png');
-  background-repeat: no-repeat;
-  background-size: cover;
-  display: block;
-  position: absolute;
-  z-index: 0;
-}
-
-food {
-  background-image: url('images/food-from-bottom.png');
 }
 
 .from-top {

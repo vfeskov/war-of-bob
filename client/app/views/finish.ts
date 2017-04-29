@@ -8,14 +8,14 @@ function finishView(time$, result$) {
 
   time$.last().subscribe(time => {
     containerEl.style.display = 'flex';
-    timeEl.appendChild(document.createTextNode(formatTime(time)))
+    timeEl.appendChild(document.createTextNode(formatTime(time)));
   });
 
   result$
     .map(r => r.topTime)
     .combineLatest(time$.last())
     .filter(([topTime, time]) => time >= topTime)
-    .subscribe(() => highscoreEl.style.display = 'block')
+    .subscribe(() => highscoreEl.style.display = 'block');
 
   result$.subscribe(({leaderboard, place}) => {
     leaderboard.forEach(({name, time}, index) => {

@@ -8,10 +8,10 @@ function headerView(name, time$, topTime$) {
 
   document.getElementById('header-nickname').appendChild(document.createTextNode(name));
 
-  var finished = false, time = 0;
+  let finished = false, time = 0;
   time$
     .startWith(0)
-    .switchMap(time => $.timer(0, 10).map(t => time + t * 10))
+    .switchMap(_time => $.timer(0, 10).map(t => _time + t * 10))
     .takeUntil(time$.last())
     .subscribe(_time => time = _time);
 
@@ -22,7 +22,7 @@ function headerView(name, time$, topTime$) {
   (function render() {
     requestAnimationFrame(() => {
       updateTime(timeContainer, time);
-      !finished && render();
+      if (!finished) { render(); }
     });
   })();
 };
@@ -32,11 +32,11 @@ function formatTime(time) {
 }
 
 function updateTime(container, time) {
-  time && updateText(container, formatTime(time));
+  if (time) { updateText(container, formatTime(time)); }
 }
 
 function updateText(container, text) {
   const prevChild = container.firstChild;
-  prevChild && container.removeChild(prevChild);
+  if (prevChild) { container.removeChild(prevChild); }
   container.appendChild(document.createTextNode(text));
 }

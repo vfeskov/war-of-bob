@@ -21,8 +21,8 @@ const {assign} = Object;
 function moveProjectile(projectile) {
   const nextProjectile = assign({}, projectile);
   if (nextProjectile.brandNew) { delete nextProjectile.brandNew; }
-  let {source, x, y} = nextProjectile;
-  switch (source) {
+  let {x, y} = nextProjectile;
+  switch (nextProjectile.source) {
     case FROM_TOP:     y++; break;
     case FROM_RIGHT:   x--; break;
     case FROM_BOTTOM:  y--; break;

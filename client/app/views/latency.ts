@@ -6,7 +6,7 @@ function latencyView(latency$) {
     document.getElementById('latency-container').style.visibility = 'visible'
   );
   latency$.subscribe(latency => {
-    latencyEl.firstChild && latencyEl.removeChild(latencyEl.firstChild);
+    if (latencyEl.firstChild) { latencyEl.removeChild(latencyEl.firstChild); }
     latencyEl.appendChild(document.createTextNode(`${latency}ms`));
   });
 };

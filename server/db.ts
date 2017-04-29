@@ -31,7 +31,7 @@ function getTime(ItemName) {
       Attributes.some(({Name, Value}) => {
         if (Name === 'time') { return !!(time = Value); }
       });
-      return parseInt(time);
+      return parseInt(time, 10);
     });
 }
 
@@ -49,7 +49,7 @@ function getPlace(time) {
   return simpleDb.select({
       SelectExpression: `select count(*) from \`${DomainName}\` where time > '${timeS}'`
     })
-    .map(({Items}) => parseInt(Items[0].Attributes[0].Value));
+    .map(({Items}) => parseInt(Items[0].Attributes[0].Value, 10));
 }
 
 function getLeaderboard() {
@@ -58,9 +58,9 @@ function getLeaderboard() {
     })
     .map(({Items}) => Items && Items
       .map(({Name, Attributes}) => assign({name: Name},
-        Attributes.reduce((res, {Name, Value}) => assign(res, {[Name]: Value}), {}) as any
+        Attributes.reduce((res, {Name: _Name, Value}) => assign(res, {[_Name]: Value}), {}) as any
       ))
-      .map(item => assign(item, {time: parseInt(item.time)}))
+      .map(item => assign(item, {time: parseInt(item.time, 10)}))
     );
 }
 

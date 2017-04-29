@@ -1,5 +1,5 @@
 import {Observable as $} from 'rxjs/Observable';
-import {moveProjectile, BOB, BULLET, FOOD, FROM_TOP, FROM_RIGHT, FROM_BOTTOM, FROM_LEFT} from '../../shared/game';
+import {moveProjectile, BOB, BULLET, FOOD, FROM_TOP, FROM_RIGHT, FROM_BOTTOM, FROM_LEFT} from '../../../shared/game';
 
 export {battlefieldView};
 
@@ -18,7 +18,7 @@ const SOURCE = {
   [FROM_LEFT]: 'from-left'
 };
 
-const CANVAS_SIZE = 1000;//px
+const CANVAS_SIZE = 1000; // px
 
 const offscreenCanvas = document.createElement('canvas');
 offscreenCanvas.width = CANVAS_SIZE;
@@ -36,7 +36,7 @@ function battlefieldView(bob$, projectile$, bobHp$) {
   updateCanvasSize(container, canvas);
   window.onresize = () => updateCanvasSize(container, canvas);
 
-  var prevState = {}, state = {}, finished = false;
+  let prevState = {}, state = {}, finished = false;
   const _projectile$ = projectile$
     .filter(p => !p.dead)
     .mergeMap(projectile => {
@@ -61,10 +61,10 @@ function battlefieldView(bob$, projectile$, bobHp$) {
     }, {})
     .subscribe(_state => state = _state, () => {}, () => finished = true);
 
-  var bobHp;
+  let bobHp;
   bobHp$.subscribe(_bobHp => bobHp = _bobHp);
 
-  var images = {}, imageData = {};
+  let images = {}, imageData = {};
   preparedImages
     .then(({images: i, imageData: d}) => {
       images = i;
@@ -84,12 +84,12 @@ function battlefieldView(bob$, projectile$, bobHp$) {
         .map(key => state[key])
         .forEach(({type, source, size, x, y}) => {
           const data = getImageData(images, imageData, type, source, size);
-          data && ctx.putImageData(data, pxls(x), pxls(y));
-          type === BOB && renderHealthbar(ctx, x, y, size, bobHp);
+          if (data) { ctx.putImageData(data, pxls(x), pxls(y)); }
+          if (type === BOB) { renderHealthbar(ctx, x, y, size, bobHp); }
         });
 
       prevState = state;
-      !finished && render();
+      if (!finished) { render(); }
     });
   }
 };
@@ -172,6 +172,6 @@ function renderHealthbar(ctx, x, y, size, hp) {
     ctx.strokeStyle = color;
     ctx.stroke();
   };
-  hp > 0 && line(pxls(x), pxls(x + size * hp / 6), '#55ba6a');
+  if (hp > 0) { line(pxls(x), pxls(x + size * hp / 6), '#55ba6a'); }
   line(pxls(x + size * hp / 6), pxls(x + size), '#fc6e51');
 }

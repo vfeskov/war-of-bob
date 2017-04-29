@@ -60,7 +60,7 @@ function start(client, name) {
     finalTopTime$ = time$.last()
       .do(time => _log('session_time', {time}))
       .mergeMap(time => prevTopTime$
-        .do(time => _log('prev_top_time_updated', {time}))
+        .do(prevTopTime => _log('prev_top_time_updated', {time: prevTopTime}))
         .map(topTime => [topTime, time])
       )
       .mergeMap(([topTime, time]) =>
