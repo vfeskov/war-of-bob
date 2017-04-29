@@ -58,13 +58,13 @@ function getLeaderboard() {
     })
     .map(({Items}) => Items && Items
       .map(({Name, Attributes}) => assign({name: Name},
-        Attributes.reduce((res, {Name, Value}) => assign(res, {[Name]: Value}), {})
+        Attributes.reduce((res, {Name, Value}) => assign(res, {[Name]: Value}), {}) as any
       ))
-      .map((item: any) => assign(item, {time: parseInt(item.time)}))
+      .map(item => assign(item, {time: parseInt(item.time)}))
     );
 }
 
-function bindSimpleDBMethod(methodName: string, params) {
+function bindSimpleDBMethod(methodName, params) {
   return new $(subscriber => {
     const request = origSimpledb[methodName](params, (err, data) => {
       if (err) { return subscriber.error(err); }
@@ -72,7 +72,7 @@ function bindSimpleDBMethod(methodName: string, params) {
       subscriber.complete();
     });
     return () => request.abort();
-  })
+  });
 }
 
 interface RxSimpleDB {
