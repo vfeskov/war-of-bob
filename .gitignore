@@ -1,6 +1,8 @@
 .env
 npm-debug.log
 Dockerrun.aws.json.zip
+public/bundle*
+server/bundle*
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml

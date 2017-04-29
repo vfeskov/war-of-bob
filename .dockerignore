@@ -1,3 +1,7 @@
+.git
 .env
 .elasticbeanstalk
+node_modules
 Dockerrun.aws.json
+server/bundle*
+public/bundle*

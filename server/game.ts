@@ -1,15 +1,21 @@
-'use strict';
-const {Observable: $, ReplaySubject, Subject} = require('rxjs'),
-  {randomInterval} = require('./util'),
-  {moveProjectile, BOB, BULLET, FOOD, FROM_TOP, FROM_RIGHT, FROM_BOTTOM, FROM_LEFT, UP, RIGHT, DOWN, LEFT} = require('./common/game.js'),
-  {assign, keys} = Object,
+import {Observable as $} from 'rxjs/Observable';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {Subject} from 'rxjs/Subject';
+import {randomInterval} from './util';
+import {
+  moveProjectile, BOB, BULLET, FOOD, FROM_TOP, FROM_RIGHT, FROM_BOTTOM, FROM_LEFT, UP, RIGHT, DOWN, LEFT
+} from '../shared/game';
+
+export {
+  start
+};
+
+const {assign, keys} = Object,
   {random, pow, min, max, floor, round} = Math,
   {now} = Date;
 
 const INITIAL_BOB = {id: 0, x: 47, y: 47, size: 6};
-const DIRECTIONS = [UP, RIGHT, DOWN, LEFT];
-
-module.exports = {start};
+const DIRECTIONS: any = [UP, RIGHT, DOWN, LEFT];
 
 function start({move$, stop$, end$}) {
   const bobDead$ = new ReplaySubject(1);
@@ -29,7 +35,7 @@ function start({move$, stop$, end$}) {
         $.timer(0, 25).mapTo(dirs) :
         $.of({});
     })
-    .scan((bob, dirs) => {
+    .scan((bob: any, dirs) => {
       let {x, y, size} = bob;
       if (dirs[UP] && y > 0)              { y--; }
       if (dirs[RIGHT] && x < 100 - size)  { x++; }
@@ -57,7 +63,7 @@ function start({move$, stop$, end$}) {
 
   const projectile$ = level$
     .switchMap(level => randomInterval(200 - 25 * level, 400 - 50 * level))
-    .scan(id => ++id, 1)
+    .scan((id: number) => ++id, 1)
     .map(id => {
       const type = floor(random() * 10) ? BULLET : FOOD,
         size = type === FOOD ? 4 : randomBulletSize(),
@@ -77,7 +83,7 @@ function start({move$, stop$, end$}) {
     .takeUntil(bobDead$)
     .mergeMap(initialProjectile => {
       const projectile$ = $.interval(initialProjectile.speed)
-        .startWith(initialProjectile)
+        .startWith(initialProjectile as any)
         .scan(moveProjectile)
         .publishReplay(1)
         .refCount();

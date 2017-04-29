@@ -1,8 +1,11 @@
-'use strict';
-const {Observable: $} = require('rxjs/Observable'),
-  {floor, random} = Math;
+import {Observable as $} from 'rxjs/Observable';
 
-module.exports = {randomInterval, pad};
+export {
+  randomInterval,
+  pad
+};
+
+const {floor, random} = Math;
 
 function randomInterval(min, max) {
   return new $(sub => {
