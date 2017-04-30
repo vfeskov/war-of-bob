@@ -4,10 +4,11 @@
   "license": "MIT",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "node server/bundle.min.js",
     "build": "ng build",
     "build-prod": "ng build -prod -aot && npm run build-server",
     "build-server": "cd server && webpack && uglifyjs bundle.js -c -o bundle.min.js && rm bundle.js",
+    "docker": "docker build -t vfeskov/war-of-bob . && docker push vfeskov/war-of-bob",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
