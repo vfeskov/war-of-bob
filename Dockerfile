@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 ADD . .
 RUN npm install && \
   npm cache clean && \
-  npm run build-prod && \
+  npm run build && \
   npm unbuild node_modules/*
 
 CMD [ "npm", "start" ]

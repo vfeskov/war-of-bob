@@ -19,7 +19,7 @@ const origSimpledb = new SimpleDB({
 
 const simpleDb = ['getAttributes', 'putAttributes', 'select']
   .reduce((result, method) =>
-    assign(result, {[method]: params => bindSimpleDBMethod(method, params)}),
+    assign(result, {[method]: params => rxifySimpleDBMethod(method, params)}),
     {}
   ) as RxSimpleDB;
 
@@ -64,7 +64,7 @@ function getLeaderboard() {
     );
 }
 
-function bindSimpleDBMethod(methodName, params) {
+function rxifySimpleDBMethod(methodName, params) {
   return new $(subscriber => {
     const request = origSimpledb[methodName](params, (err, data) => {
       if (err) { return subscriber.error(err); }

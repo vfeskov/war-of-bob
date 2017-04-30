@@ -36,6 +36,7 @@ io.on('connection', client => {
 });
 
 server.listen(3000);
+log('server_up_and_listening', {port: 3000});
 
 function start(client, name) {
   const _log = (event, payload = {}) =>
@@ -104,6 +105,6 @@ function start(client, name) {
 }
 
 function log(event, payload = {}) {
-  const entry = assign({timestamp: new Date(), event}, payload);
+  const entry = assign({event, timestamp: new Date()}, payload);
   console.log(JSON.stringify(entry));
 }

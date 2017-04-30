@@ -10,6 +10,7 @@ import {latencyView} from './views/latency';
 import {levelView} from './views/level';
 import {UP, RIGHT, DOWN, LEFT} from '../../shared/game';
 import {emitObservables, observablesFromEvents} from '../../shared/socket-util';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'wob-root',
@@ -25,8 +26,7 @@ export class AppComponent implements OnInit {
 
       reloadOnSpace();
       restartOnEscape();
-
-      const server = io('/');
+      const server = io(environment.serverUrl);
 
       const {move$, stop$} = getBobsMovement();
       emitObservables(server, {move$, stop$});
