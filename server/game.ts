@@ -106,7 +106,7 @@ function start({move$, stop$, end$}) {
         .delay(1)
         .share();
 
-      return projectile$.takeUntil(projectileDead$).merge(projectileDead$);
+      return _projectile$.takeUntil(projectileDead$).merge(projectileDead$);
     })
     .share();
 
