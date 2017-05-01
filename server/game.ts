@@ -154,7 +154,7 @@ function start({move$, stop$, end$}) {
     bob$,
     projectile$: projectile$.filter(({brandNew, dead}) => brandNew || dead),
     time$,
-    level$
+    level$: level$.map(l => l + 1)
   };
 };
 

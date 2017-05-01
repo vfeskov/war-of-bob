@@ -13,7 +13,7 @@
     "start": "node server/bundle.js",
     "test": "ng test",
     "watch-server": "concurrently \"webpack --config server/webpack.config.js --watch\" \"nodemon --watch server/bundle.js server/bundle.js\"",
-    "watch-client": "ng serve --live-reload --open"
+    "watch-client": "ng serve -o"
   },
   "private": true,
   "dependencies": {

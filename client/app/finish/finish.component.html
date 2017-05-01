@@ -1,0 +1,10 @@
+<h1>WAR OF BOB</h1>
+<div class="highscore" *ngIf="highscore">New Highscore!</div>
+<div>You survived <span class="time">{{timeFormatted}}</span> seconds.</div>
+<div class="leaderboard-container" *ngIf="result">
+  <h3>Top Bobs</h3>
+  <ol class="leaderboard">
+    <li *ngFor="let bob of result.leaderboard">Bob "{{bob.name}}" Roberts - {{formatTime(bob.time)}}s</li>
+  </ol>
+</div>
+<div>Hit Space to restart, Escape to exit.</div>

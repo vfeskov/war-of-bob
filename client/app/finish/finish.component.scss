@@ -1,0 +1,55 @@
+@import '../variables';
+
+:host {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  font-size: 4vmin;
+  height: $canvas-height;
+  justify-content: center;
+  left: calc(50% - #{$canvas-height / 2});
+  position: absolute;
+  text-align: center;
+  top: $header-height;
+  width: $canvas-height;
+  z-index: 2;
+}
+
+.highscore {
+  color: red;
+}
+
+.time {
+  font-weight: bold;
+}
+
+h1 {
+  font-size: 10vmin;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+h3 {
+  margin-bottom: 0;
+  padding-left: 5vmin;
+  text-align: left;
+  width: 100%;
+}
+
+.leaderboard {
+  height: 21vmin;
+  margin-top: 0;
+  overflow: auto;
+  padding-left: 10vmin;
+  text-align: left;
+
+  li.active {
+    color: red;
+  }
+}
+
+.leaderboard-container {
+  width: 100%;
+}

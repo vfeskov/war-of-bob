@@ -1,0 +1,21 @@
+@import '../variables';
+
+:host {
+  display: flex;
+  font-size: 3vmin;
+  height: $header-height;
+  justify-content: space-between;
+  line-height: $header-height;
+  position: relative;
+  width: $canvas-height;
+}
+
+.name {
+  bottom: 0;
+  font-size: 3.5vmin;
+  left: 0;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  top: 0;
+}
