@@ -11,8 +11,11 @@ export class FooterComponent implements OnChanges {
   @Input() latency$: $<number>;
   latency: number;
   showLatency: boolean;
+  year: number;
 
-  constructor(private cd: ChangeDetectorRef) { }
+  constructor(private cd: ChangeDetectorRef) {
+    this.year = new Date().getFullYear();
+  }
 
   ngOnChanges() {
     if (!this.latency$) { return; }
