@@ -17,7 +17,7 @@ const {assign} = Object;
 
 const app = connect();
 app.use(compression());
-app.use(serveStatic('public'));
+app.use(serveStatic('public', {maxAge: 3600}));
 
 const server = createServer(app);
 
