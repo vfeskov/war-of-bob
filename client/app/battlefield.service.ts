@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BOB, BULLET, FOOD, FROM_TOP, FROM_RIGHT, FROM_BOTTOM, FROM_LEFT } from '../../shared/game';
+
 const {assign} = Object;
 
 export const TYPE = {

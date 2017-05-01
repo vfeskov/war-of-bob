@@ -38,8 +38,8 @@ export class BattlefieldComponent implements OnInit {
     this.ctx = this.canvas.getContext('2d');
     this.canvas.width = CANVAS_SIZE;
     this.canvas.height = CANVAS_SIZE;
-    this.updateCanvasSize();
-    window.onresize = () => this.updateCanvasSize();
+    this.updateCanvasScale();
+    window.onresize = () => this.updateCanvasScale();
 
     const projectile$ = this.projectile$
       .filter(p => !p.dead)
@@ -54,8 +54,8 @@ export class BattlefieldComponent implements OnInit {
       });
     const bob$ = this.bob$.map(bob => assign(bob, {type: BOB}));
     $.merge(bob$, projectile$)
-      .scan((_state, {id, type, source, size, x, y, dead}) => {
-        const newState = assign({}, _state);
+      .scan((state, {id, type, source, size, x, y, dead}) => {
+        const newState = assign({}, state);
         if (dead) {
           delete newState[id];
         } else {
@@ -84,7 +84,7 @@ export class BattlefieldComponent implements OnInit {
         .forEach(({type, source, size, x, y}) => {
           const data = this.battlefieldService.getImageData(type, source, size);
           if (data) { this.ctx.putImageData(data, pxls(x), pxls(y)); }
-          if (type === BOB) { this.renderHealthbar(this.ctx, x, y, size, this.bobHp); }
+          if (type === BOB) { this.renderHealthbar(x, y, size, this.bobHp); }
         });
 
       this.prevState = this.state;
@@ -92,20 +92,20 @@ export class BattlefieldComponent implements OnInit {
     });
   }
 
-  updateCanvasSize() {
+  updateCanvasScale() {
     const scale = (this.host.offsetWidth - 2) / CANVAS_SIZE;
     this.canvas.style.transformOrigin = '0 0';
     this.canvas.style.transform = `scale(${scale})`;
   }
 
-  renderHealthbar(ctx, x, y, size, hp) {
+  renderHealthbar(x, y, size, hp) {
     const line = (xPxls1, xPxls2, color) => {
-      ctx.beginPath();
-      ctx.moveTo(xPxls1, pxls(y + size - 0.5));
-      ctx.lineTo(xPxls2, pxls(y + size - 0.5));
-      ctx.lineWidth = pxls(1);
-      ctx.strokeStyle = color;
-      ctx.stroke();
+      this.ctx.beginPath();
+      this.ctx.moveTo(xPxls1, pxls(y + size - 0.5));
+      this.ctx.lineTo(xPxls2, pxls(y + size - 0.5));
+      this.ctx.lineWidth = pxls(1);
+      this.ctx.strokeStyle = color;
+      this.ctx.stroke();
     };
     if (hp > 0) { line(pxls(x), pxls(x + size * hp / 6), '#55ba6a'); }
     line(pxls(x + size * hp / 6), pxls(x + size), '#fc6e51');
