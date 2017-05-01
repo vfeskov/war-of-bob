@@ -9,8 +9,8 @@ import { Observable as $ } from 'rxjs/Observable';
 })
 export class FooterComponent implements OnChanges {
   @Input() latency$: $<number>;
-  private latency: number;
-  private showLatency: boolean;
+  latency: number;
+  showLatency: boolean;
 
   constructor(private cd: ChangeDetectorRef) { }
 

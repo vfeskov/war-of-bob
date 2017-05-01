@@ -10,17 +10,17 @@ import { Observable as $ } from 'rxjs/Observable';
 export class HeaderComponent implements OnInit {
   @Input() nickname: string;
   @Input() time$: $<number>;
-  @Input('topTime$') origTopTime$: $<number>;
+  @Input() topTime$: $<number>;
   @ViewChild('time') childTime;
-  private topTime$: $<string>;
-  private time: number = 0;
-  private finished: boolean = false;
+  formattedTopTime$: $<string>;
+  private time = 0;
+  private finished = false;
   private timeEl: HTMLElement;
 
   constructor() { }
 
   ngOnInit() {
-    this.topTime$ = this.origTopTime$.map(this.formatTime);
+    this.formattedTopTime$ = this.topTime$.map(this.formatTime);
     this.timeEl = this.childTime.nativeElement;
     this.time$
       .switchMap(_time => $.timer(0, 10).map(t => _time + t * 10))

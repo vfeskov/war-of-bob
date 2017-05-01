@@ -10,8 +10,8 @@ import { Observable as $ } from 'rxjs/Observable';
 export class FinishComponent implements OnChanges {
   @Input() time: number;
   @Input() result: any;
-  private timeFormatted: string;
-  private highscore: boolean = false;
+  timeFormatted: string;
+  highscore = false;
 
   constructor() { }
 

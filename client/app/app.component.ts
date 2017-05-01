@@ -16,17 +16,17 @@ const {assign, keys} = Object;
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent implements OnInit {
-  private nickname: string;
-  private time$: $<number>;
-  private topTime: $<number>;
-  private latency$: $<number>;
-  private bob$: $<any>;
-  private bobHp$: $<number>;
-  private bobDead$: $<any>;
-  private level$: $<number>;
-  private result$: $<any>;
-  private result: number;
-  private finalTime: number;
+  nickname: string;
+  time$: $<number>;
+  topTime: $<number>;
+  latency$: $<number>;
+  bob$: $<any>;
+  bobHp$: $<number>;
+  bobDead$: $<any>;
+  level$: $<number>;
+  result$: $<any>;
+  result: number;
+  finalTime: number;
 
   constructor(
     private battlefieldService: BattlefieldService,

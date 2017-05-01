@@ -1,8 +1,9 @@
 @import '../variables';
 
 :host {
-  height: $header-height + $canvas-height;
   border-bottom: 1px solid #000;
+  display: block;
+  height: $header-height + $canvas-height;
 }
 
 .container {

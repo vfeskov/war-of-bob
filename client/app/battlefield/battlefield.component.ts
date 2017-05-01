@@ -1,8 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy, Input, ViewChild, ElementRef } from '@angular/core';
 import { Observable as $ } from 'rxjs/Observable';
-import {
-  moveProjectile, BOB, BULLET, FOOD, FROM_TOP, FROM_RIGHT, FROM_BOTTOM, FROM_LEFT
-} from '../../../shared/game';
+import { moveProjectile, BOB } from '../../../shared/game';
 import { BattlefieldService, CANVAS_SIZE } from '../battlefield.service';
 
 const {keys, assign} = Object;
@@ -21,7 +19,7 @@ export class BattlefieldComponent implements OnInit {
   @ViewChild('canvas') canvasChild;
   private prevState = {};
   private state = {};
-  private finished: boolean = false;
+  private finished = false;
   private bobHp: number;
   private images = {};
   private imageData = {};
